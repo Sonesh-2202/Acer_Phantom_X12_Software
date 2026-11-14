@@ -1,0 +1,14 @@
+# Phase 1 — protocol source search
+
+## Findings
+
+- **Exact VID/PID search:** The 2.4 GHz receiver `A8A5:2255` identifies as `YJX-CHIP` and shares its ID and interface shape with the YJX2012 receiver family. An open-source project for the Rajin Blaze Claws mouse documents the same receiver ID, the same vendor control collection shape (interface 2, 64-byte input/output, no report ID), and packet captures from that sibling's Windows WebHID app. This is a strong protocol lead, not proof that every Acer firmware feature is identical. [Claws Mouse Control](https://github.com/naevui/claws-mouse-linux)
+- **Known functionality in that sibling implementation:** model/firmware query, serial query, and profile read; profile contains polling level plus six DPI values and active stage. Its write command sets polling/DPI as a complete profile. It does not implement RGB, battery, or button/macro mapping. This absence is not proof those capabilities are absent from the Acer device.
+- **Ecosystem search:** No direct support entry for `A8A5:2255` surfaced in searches scoped to OpenRGB, libratbag/Piper, rivalcfg, or OpenRazer. A separate GitHub driver, based on another capture of the same receiver ID, independently corroborates the YJX chipset family, but documents battery only for a different mouse/command. [HaloBattery protocol notes](https://github.com/HeyOkay/HaloBattery/blob/main/docs/protocols.md)
+- **Acer support:** Searching Acer's support portal and the exact SKU `ZC.A01SI.4ND` did not locate an Acer-hosted mouse utility or driver. Acer's general [Drivers and Manuals portal](https://www.acer.com/us-en/support/drivers-and-manuals) is available, but no page for this SKU appeared in the search results. This means “not found”, not proof that no regional listing exists.
+- **OEM configurator:** The sibling project describes its Windows configurator as a Tauri/WebView2 application using WebHID. Other YJX2012 mouse variants have browser configurators, including the K-Snake X11 family. No Acer-specific URL was found, and the box/manual has no URL or QR code per the user. No unknown executable was downloaded.
+- **User screenshots/observation:** The K-Snake X11 page is open on this user's receiver in 2.4G mode. It exposes button mapping, DPI/polling, lighting-mode, and macro pages and displays a battery icon. The user reports the displayed DPI stage follows the mouse's physical DPI button. This confirms useful UI/device feedback in the related page, but does not establish numeric battery data or verify writes from this configurator against Acer-branded hardware.
+
+## Next step
+
+Use the passive WebHID logger while the related configurator is already connected. Capture page initialization/read traffic and the normal DPI-button event, then compare the actual exchanges with the sibling protocol. Do not assume the sibling's write packet or undocumented feature support is correct for this Acer model.

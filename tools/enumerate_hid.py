@@ -7,7 +7,6 @@ from pathlib import Path
 
 import hid
 
-
 ROOT = Path(__file__).resolve().parents[1]
 DOCS = ROOT / "docs"
 RAW = DOCS / "report_descriptors"
@@ -75,8 +74,8 @@ def main() -> None:
     for index, info in enumerate(devices, 1):
         vid, pid = info["vendor_id"], info["product_id"]
         path = info["path"]
-        def val(key: str) -> str:
-            value = info.get(key, "")
+        def val(key: str, current: dict[str, object] = info) -> str:
+            value = current.get(key, "")
             return value.decode(errors="replace") if isinstance(value, bytes) else str(value or "")
         path_text = path.decode(errors="replace") if isinstance(path, bytes) else str(path)
         map_lines.append(
@@ -87,7 +86,7 @@ def main() -> None:
         try:
             handle.open_path(path)
             descriptor = handle.get_report_descriptor()
-        except Exception as exc:  # Record inaccessible interfaces rather than silently omit them.
+        except (OSError, ValueError) as exc:  # Record inaccessible interfaces rather than silently omit them.
             descriptor_lines += [f"## {vid:04X}:{pid:04X} interface {info.get('interface_number')} usage 0x{info.get('usage_page', 0):04X}:0x{info.get('usage', 0):04X}", "", f"Could not retrieve descriptor: `{type(exc).__name__}: {exc}`", ""]
             continue
         finally:

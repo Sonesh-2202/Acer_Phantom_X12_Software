@@ -6,3 +6,5 @@ dist/
 build/
 *.spec
 logs/
+backups/*.json
+tools/hid-capture.json
