@@ -15,7 +15,7 @@ The lighting page maps each command to the pattern the user observed on this Ace
 3. Close the K-Snake configurator tab if it is connected, then click **Connect receiver** and select the `A8A5:2255` receiver.
 4. If using the local version, leave its console window open. Close it to stop the server.
 
-The first page shows receiver-reported DPI and battery updates. Battery can display as percentage, bar, or both; the bar is green above 20% and red at 20% or below. The Lighting page includes seven OEM effects and a custom color/animation preview. **Save scene locally** stores the scene in that browser. Custom-color device output is intentionally disabled while the color packet is unknown. The effect command is source-derived and awaits a receiver-side check.
+The first page shows receiver-reported DPI and battery updates. Battery can display as percentage, bar, or both; the K-Snake-style battery icon is green above 20% and red at 20% or below. The Lighting page includes seven built-in effects and a custom color/animation preview. **Save scene locally** stores the scene in that browser. Custom-color device output is intentionally disabled while the color packet is unknown.
 
 WebHID requires a Chromium-based browser and an explicit device choice. The hosted site uses HTTPS; the local version uses `localhost`. It will not work by double-clicking `web/index.html` or in Firefox/Safari.
 
@@ -29,7 +29,7 @@ The receiver should remain connected through its 2.4 GHz USB dongle. No special 
 | Active DPI stage and six values | Yes | Not enumerated | Not enumerated | Reads verified; vendor-page write shape captured, app writes not enabled |
 | DPI adjustment range | 2.4 GHz receiver | Unknown | Unknown | OEM page shows slider 200–12000 DPI; app-side write not validated |
 | Polling-rate setting | Yes | Not enumerated | Not enumerated | Receiver reports 1000 Hz; vendor-page profile writes captured, app writes not enabled |
-| Lighting effects | Candidate UI exists in related OEM site | Unknown | Unknown | Seven effect IDs found in configurator source; app has a WebHID apply path pending receiver validation |
+| Lighting effects | Yes | Unknown | Unknown | User-observed mapping: Void/off=6, Aurora/wave=0, Neon Bloom=1, Comet Rally=2, Orbit Bounce=3, Photon Sweep=4, Lumen Breath=5 |
 | Custom RGB colour/brightness | Unknown | Unknown | Unknown | Profile metadata hints at single-color steady/breathing; custom color packet still unknown |
 | ARGB zones | Unknown | Unknown | Unknown | Zone support/layout not identified |
 | Battery level | Yes | Unknown | Unknown | Live unsolicited events; web UI displays percentage, bar, or both |
