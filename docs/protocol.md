@@ -20,7 +20,7 @@ Offsets below are zero-based within the 64-byte report, without a report-ID byte
 | Command | Request | Response/use | Status |
 |---|---|---|---|
 | `0x03` model/firmware text | `55 03` then zero padding | `AA 03`; printable data began at byte 8. This receiver returned `YJX.co.mouse273224Jul  9 202614:38:03Apr  7 202614:36:16`. | CONFIRMED (this receiver) |
-| `0x04` serial | `55 04` then zero padding | `AA 04`; this receiver returned UTF-16LE `D1K_260709u273_A7eV1` beginning at byte 10. The preceding bytes are not decoded. | CONFIRMED (response); preceding fields UNKNOWN |
+| `0x04` serial | `55 04` then zero padding | `AA 04`; this receiver returned UTF-16LE `[redacted receiver serial]` beginning at byte 10. The preceding bytes are not decoded. | CONFIRMED (response); preceding fields UNKNOWN |
 | `0x0E` active profile | `55 0E` then zero padding | `AA 0E`; see table below. | CONFIRMED (this receiver) |
 
 ### `0x0E` profile response
@@ -57,8 +57,9 @@ There is no identified separate save/commit command. The sibling code treats an 
 
 | Feature | Current evidence |
 |---|---|
-| Lighting effects | The related configurator visibly offers seven modes: Wave, Neon, Touring Flash, YOYO Ball, One-way Flash, Circulatory Respiration, and lights off. The screenshot shows YOYO Ball selected. This confirms the OEM UI offers effects, but exact mode IDs and command acknowledgement still need a device capture. |
-| Custom RGB/ARGB color, zones, brightness, speed | Not shown in the screenshot or captured traffic; arbitrary color control remains unconfirmed. |
+| Lighting effect command | Related configurator source builds command `0x21` as `55 21 00 00 03 00 00 00 00 00 <mode>` (zero-padded to 64 bytes). Its option IDs are Wave=1, Neon=2, Touring Flash=3, YOYO Ball=4, One-way Flash=5, Circulatory Respiration=6, Off=0. The user tested the Acer and observed a one-step cyclic offset: mode 6=Off, 0=Wave, 1=Neon, 2=Touring Flash, 3=YOLO Ball, 4=One-way Flash, 5=Circulatory Respiration. The web UI uses the user-observed Acer mapping. Command format is SOURCE-DERIVED; pattern mapping is USER-OBSERVED on this receiver. |
+| Custom RGB color | Related configurator's default profile metadata contains `single color steady` and `single color breathing` entries with color/brightness/speed capability flags. However, the inspected device class has no color-value sender and the capture contains no color payload. This is a promising lead, not proof that the receiver accepts arbitrary colors. |
+| ARGB zones | No zone layout, zone count, or per-zone color packet was found. UNKNOWN. |
 | Battery | CONFIRMED unsolicited event `AA FA ... D0 <percent> <charge>`; captured values were 61% then 62%, charge flag 0. Numeric battery query is not captured. |
 | Button remapping | The capture includes `0x09` request/response pairs, consistent with the related page's mapping setter. The captured frames are identical repeats; specific mapping field semantics and getter state are still source-derived, not independently proven by changing a mapping. |
 | Macros | Capture includes `0x0D` chunks and `0x10` acknowledgements from the vendor macro page. Chunk structure and persistence need fuller decoding before implementing upload. |

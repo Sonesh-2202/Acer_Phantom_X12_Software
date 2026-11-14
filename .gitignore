@@ -8,3 +8,7 @@ build/
 logs/
 backups/*.json
 tools/hid-capture.json
+node_modules/
+Thumbs.db
+.DS_Store
+img_assets/

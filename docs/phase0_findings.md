@@ -11,7 +11,7 @@ Captured 2026-11-14 on Windows using Python 3.14.3, pip 26.3, and Git 2.52.0.
 
 ## Device identification
 
-The currently attached USB composite device is **VID `A8A5`, PID `2255`**, manufacturer string `YJX-CHIP`, product string `USB Receiver`, serial `D1K_260709u273_A7eV1`, release `0x0273`. Its USB parent is `USB\\VID_A8A5&PID_2255\\D1K_260709U273_A7EV1`.
+The currently attached USB composite device is **VID `A8A5`, PID `2255`**, manufacturer string `YJX-CHIP`, product string `USB Receiver`, serial `[redacted receiver serial]`, release `0x0273`. Its USB parent is `USB\\VID_A8A5&PID_2255\\[redacted]`.
 
 This is a strong candidate for the mouse's 2.4 GHz receiver/configuration endpoint, but its product string says “USB Receiver”. The present enumeration does not prove it is the mouse connected directly by cable or identify the Acer retail model. HIDAPI enumerated 18 top-level collections across attached devices. Full inventory is in [device_map.md](device_map.md).
 
