@@ -1,14 +1,26 @@
+# JavaScript dependencies and generated output
+node_modules/
+dist/
+.vite/
+
+# Python environments, caches, and generated output
 .venv/
+venv/
 __pycache__/
 *.py[cod]
 .pytest_cache/
-dist/
+.mypy_cache/
+.ruff_cache/
 build/
-*.spec
+
+# Local device data: may contain receiver serials or host identifiers
 logs/
 backups/*.json
+captures/
 tools/hid-capture.json
-node_modules/
+
+# OS/editor files
 Thumbs.db
 .DS_Store
-img_assets/
+.idea/
+.vscode/

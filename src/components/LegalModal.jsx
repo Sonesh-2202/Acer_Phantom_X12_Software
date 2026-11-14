@@ -32,9 +32,9 @@ export function LegalModal({ isOpen, onClose }) {
 
         <div className="dialog-body space-y-4 text-xs text-text-secondary">
           <section>
-            <h3 className="text-sm font-bold text-white mb-1">100% Client-Side Privacy</h3>
+            <h3 className="text-sm font-bold text-white mb-1">Data &amp; Network Use</h3>
             <p>
-              This application makes zero network requests and transmits no telemetry. All configurations, battery preferences, and saved scenes reside solely within your browser’s localStorage. WebHID communication flows strictly between your browser and the physical receiver.
+              The app does not send device data or telemetry to its maintainers. It loads fonts from Google Fonts, and links you open can contact their respective sites. Saved scenes and preferences stay in this browser’s local storage. WebHID reports are exchanged between your browser and the physical receiver.
             </p>
           </section>
           <section>

@@ -1,5 +1,5 @@
 /**
- * Acer Phantom X12 (VID: 0x248A / PID: 0x8266, YJX 0xA8A5:0x2255)
+ * Acer Phantom X12 2.4 GHz receiver (VID: 0xA8A5 / PID: 0x2255)
  * WebHID Protocol Handlers and Report Parsers.
  */
 

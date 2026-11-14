@@ -85,7 +85,7 @@ export function LandingPage({
   // Mouse spotlight gradient tracker
   useEffect(() => {
     const handleMouseMove = (e) => {
-      const cards = document.querySelectorAll('.bento-card, .rack-card');
+      const cards = document.querySelectorAll('.bento-card');
       cards.forEach((card) => {
         const rect = card.getBoundingClientRect();
         const x = e.clientX - rect.left;
@@ -108,15 +108,6 @@ export function LandingPage({
     }
   };
 
-  const copyLinux = () => {
-    sound.ack();
-    navigator.clipboard.writeText('chmod +x Phantom*.AppImage && ./Phantom*.AppImage');
-    const btn = document.getElementById('copy-linux-cmd');
-    if (btn) {
-      btn.textContent = 'COPIED!';
-      setTimeout(() => (btn.textContent = 'COPY'), 2000);
-    }
-  };
 
   return (
     <div ref={containerRef} className="landing-view">
@@ -139,7 +130,7 @@ export function LandingPage({
             <a href="#hero-stage" className="landing-nav-link active" onClick={() => sound.click()}>LAUNCHPAD</a>
             <a href="#hardware-details" className="landing-nav-link" onClick={() => sound.click()}>DETAILS &amp; SPECS</a>
             <a href="#support-dev" className="landing-nav-link" onClick={() => sound.click()}>OPEN PROTOCOL</a>
-            <a href="#downloads" className="landing-nav-link" onClick={() => sound.click()}>NATIVE SUITE</a>
+            <a href="#web-controls" className="landing-nav-link" onClick={() => sound.click()}>WEB CONTROLS</a>
           </nav>
 
           <div className="landing-header-actions">
@@ -187,8 +178,8 @@ export function LandingPage({
               <svg className="chip-icon" viewBox="0 0 12 12"><circle cx="6" cy="6" r="4" fill="currentColor"/></svg>
               FLAGSHIP HARDWARE // REVERSE-ENGINEERED
             </span>
-            <span className="hud-chip">VID: 0x248A // PID: 0x8266</span>
-            <span className="hud-chip">2.4 GHz SUB-1MS</span>
+            <span className="hud-chip">VID: 0xA8A5 // PID: 0x2255</span>
+            <span className="hud-chip">2.4 GHz RECEIVER</span>
           </div>
 
           <h1 className="hero-title">
@@ -241,8 +232,8 @@ export function LandingPage({
               <span className="jump-arrow">↓</span> SCROLL FOR HARDWARE TELEMETRY
             </a>
             <span className="quick-sep">/</span>
-            <a href="#downloads" className="quick-jump-link" onClick={() => sound.click()}>
-              JUMP TO NATIVE DESKTOP DOWNLOADS (.EXE / .APPIMAGE / .DMG)
+            <a href="#web-controls" className="quick-jump-link" onClick={() => sound.click()}>
+              JUMP TO WEB CONTROLS
             </a>
           </div>
         </div>
@@ -296,7 +287,7 @@ export function LandingPage({
           </div>
           <div className="hero-spec-tag tag-bottom-left">
             <span className="tag-label">POLLING FREQUENCY</span>
-            <span className="tag-val">1000 HZ / 1.0 MS</span>
+            <span className="tag-val">PROFILE: 1000 HZ</span>
           </div>
         </div>
       </section>
@@ -340,10 +331,10 @@ export function LandingPage({
             <div className="scrolly-cards-stack">
               <div className="scrolly-card" id="scrolly-card-1">
                 <div className="card-num">01 // TELEMETRY</div>
-                <h3 className="card-title">2.4GHz Sub-1ms Wireless Link</h3>
+                <h3 className="card-title">2.4 GHz Receiver Link</h3>
                 <p className="card-desc">
-                  Direct receiver communication via WebHID report descriptor <code>VID: 0x248A / PID: 0x8266</code> (and YJX <code>0xA8A5:0x2255</code>). 
-                  Operates at true 1000Hz (1.0ms response) with verified bidirectional packet handshakes.
+                  Direct receiver communication via the confirmed YJX WebHID collection <code>VID: 0xA8A5 / PID: 0x2255</code>.
+                  The receiver profile currently reports 1000 Hz. End-to-end response latency has not been independently measured.
                 </p>
                 <div className="card-meta">
                   <span className="mono-badge">CMD 0x03 / 0x0E</span>
@@ -353,27 +344,25 @@ export function LandingPage({
 
               <div className="scrolly-card" id="scrolly-card-2">
                 <div className="card-num">02 // SENSOR ARRAY</div>
-                <h3 className="card-title">12,000 DPI Optical Engine</h3>
+                <h3 className="card-title">Six-Stage DPI Profile</h3>
                 <p className="card-desc">
-                  6 customizable onboard sensitivity stages (1,200 to 12,000 DPI) stored directly in non-volatile flash memory. 
-                  Cycle stages on-the-fly with zero tracking acceleration and 1:1 pixel fidelity.
+                  The receiver reports six stages from 1,200 to 12,000 DPI. This app reads the active profile; writing customized DPI values is not enabled yet.
                 </p>
                 <div className="card-meta">
-                  <span className="mono-badge">6 STAGES</span>
-                  <span className="mono-badge">FLASH PERSISTENT</span>
+                  <span className="mono-badge">6 REPORTED STAGES</span>
+                  <span className="mono-badge">PROFILE READ</span>
                 </div>
               </div>
 
               <div className="scrolly-card" id="scrolly-card-3">
                 <div className="card-num">03 // LIGHTING CHROMA</div>
-                <h3 className="card-title">6-Mode Hardware Chroma Matrix</h3>
+                <h3 className="card-title">Seven Onboard Lighting Modes</h3>
                 <p className="card-desc">
-                  Dedicated onboard lighting processor handling Void, Aurora, Neon Bloom, Comet Rally, Orbit Bounce, Photon Sweep, and Lumen Breath. 
-                  No background CPU overhead—the mouse drives animations internally.
+                  The seven onboard modes were observed on this mouse. Custom color packets and independent ARGB zones have not been identified.
                 </p>
                 <div className="card-meta">
-                  <span className="mono-badge">CMD 0x21 VERIFIED</span>
-                  <span className="mono-badge">ONBOARD PROCESSOR</span>
+                  <span className="mono-badge">USER-OBSERVED MODES</span>
+                  <span className="mono-badge">CUSTOM COLOR UNKNOWN</span>
                 </div>
               </div>
 
@@ -381,12 +370,11 @@ export function LandingPage({
                 <div className="card-num">04 // PHILOSOPHY</div>
                 <h3 className="card-title">Zero-Bloatware Architecture</h3>
                 <p className="card-desc">
-                  Why install 500MB proprietary OEM software that spawns telemetry agents and background daemons? 
-                  Phantom Device Studio gives you instant, pure WebHID hardware control in under 2MB.
+                  The control panel runs in a browser and uses WebHID for the confirmed 2.4 GHz receiver. No native driver or background service is part of this project.
                 </p>
                 <div className="card-meta">
                   <span className="mono-badge">0 BACKGROUND SERVICES</span>
-                  <span className="mono-badge">100% PRIVATE</span>
+                  <span className="mono-badge">NO DEVICE TELEMETRY</span>
                 </div>
               </div>
             </div>
@@ -403,10 +391,10 @@ export function LandingPage({
               <div className="bento-spotlight"></div>
               <div className="bento-header">
                 <span className="bento-tag">TRANSMISSION RATE</span>
-                <span className="bento-stat">1000 HZ / 1.0 MS</span>
+                <span className="bento-stat">PROFILE: 1000 HZ</span>
               </div>
-              <h4 className="bento-title">Ultra-Low Latency Wireless</h4>
-              <p className="bento-text">Hardware selectable polling across 125Hz, 250Hz, 500Hz, and 1000Hz with zero jitter smoothing.</p>
+              <h4 className="bento-title">Receiver Polling Profile</h4>
+              <p className="bento-text">The receiver reports 125, 250, 500, and 1000 Hz levels. The app currently reads this profile; hardware writes are not enabled.</p>
               <div className="bento-wave-visual">
                 <svg viewBox="0 0 300 40" className="wave-svg">
                   <path d="M0 20 Q 25 5, 50 20 T 100 20 T 150 20 T 200 20 T 250 20 T 300 20" className="wave-path" />
@@ -419,14 +407,12 @@ export function LandingPage({
               <div className="bento-spotlight"></div>
               <div className="bento-header">
                 <span className="bento-tag">INTERFACES</span>
-                <span className="bento-stat">TRI-MODE</span>
+                <span className="bento-stat">2.4 GHZ</span>
               </div>
-              <h4 className="bento-title">Tri-Mode Flexibility</h4>
-              <p className="bento-text">2.4GHz Dongle (WebHID verified), Type-C Braided Tether, and Low-Energy Bluetooth.</p>
+              <h4 className="bento-title">Confirmed Connection</h4>
+              <p className="bento-text">The YJX 2.4 GHz receiver is confirmed. Wired and Bluetooth control have not been tested.</p>
               <div className="bento-pills-row">
                 <span className="micro-pill active">2.4 GHz</span>
-                <span className="micro-pill">USB-C</span>
-                <span className="micro-pill">BT 5.2</span>
               </div>
             </div>
 
@@ -434,10 +420,10 @@ export function LandingPage({
               <div className="bento-spotlight"></div>
               <div className="bento-header">
                 <span className="bento-tag">STORAGE</span>
-                <span className="bento-stat">FLASH EEPROM</span>
+              <span className="bento-stat">PROFILE READ</span>
               </div>
-              <h4 className="bento-title">Hardware Memory Persistence</h4>
-              <p className="bento-text">Write your settings once via browser; take your mouse to any tournament PC without installing software.</p>
+              <h4 className="bento-title">Receiver Profile</h4>
+              <p className="bento-text">DPI stages and polling rate are read from the receiver. Hardware profile writes are not enabled in this app.</p>
             </div>
 
             <div className="bento-card bento-span-2">
@@ -447,12 +433,12 @@ export function LandingPage({
                 <span className="bento-stat volt-text">VERIFIED &amp; AUDITED</span>
               </div>
               <h4 className="bento-title">Open Protocol Transparency</h4>
-              <p className="bento-text">Zero undocumented writes. Every command byte is logged and validated against physical receiver responses.</p>
+              <p className="bento-text">The app limits device selection to the confirmed vendor collection and avoids unverified profile writes.</p>
               <div className="protocol-bar-wrap">
                 <div className="protocol-bar-fill" style={{ width: '78%' }}></div>
                 <div className="protocol-bar-labels">
-                  <span>LIGHTING &amp; TELEMETRY: 100%</span>
-                  <span>BUTTON PACKETS: IN PROGRESS</span>
+                  <span>RECEIVER READS: DOCUMENTED</span>
+                  <span>PROFILE WRITES: NOT ENABLED</span>
                 </div>
               </div>
             </div>
@@ -461,20 +447,20 @@ export function LandingPage({
               <div className="bento-spotlight"></div>
               <div className="bento-header">
                 <span className="bento-tag">WEIGHT CLASS</span>
-                <span className="bento-stat">~65 GRAMS</span>
+              <span className="bento-stat">SPEC NOT VERIFIED</span>
               </div>
-              <h4 className="bento-title">Featherweight Chassis</h4>
-              <p className="bento-text">Engineered honeycomb structural rigidity for lightning flick shots and reduced wrist fatigue.</p>
+              <h4 className="bento-title">Mouse Hardware</h4>
+              <p className="bento-text">The control project focuses on the 2.4 GHz receiver protocol; chassis measurements are outside its verified scope.</p>
             </div>
 
             <div className="bento-card">
               <div className="bento-spotlight"></div>
               <div className="bento-header">
                 <span className="bento-tag">SWITCHES</span>
-                <span className="bento-stat">80M CLICKS</span>
+              <span className="bento-stat">SPEC NOT VERIFIED</span>
               </div>
-              <h4 className="bento-title">Tactile Crisp Actuation</h4>
-              <p className="bento-text">Gold-plated contact micro-switches providing zero double-click debounce issues.</p>
+              <h4 className="bento-title">Switch Hardware</h4>
+              <p className="bento-text">Switch endurance and debounce specifications have not been verified for this unit.</p>
             </div>
           </div>
         </div>
@@ -489,7 +475,7 @@ export function LandingPage({
                 <span className="blinking-dot"></span>
                 COMMUNITY REVERSE-ENGINEERING INITIATIVE
               </div>
-              <span className="manifesto-meta">DOC ID: REV-ENG-248A // PUBLIC DOMAIN</span>
+              <span className="manifesto-meta">DOC ID: RECEIVER-PROTOCOL // RESEARCH</span>
             </div>
 
             <h2 className="manifesto-title">
@@ -502,7 +488,7 @@ export function LandingPage({
                   Many gaming peripherals ship with opaque, bloat-laden utilities—often poorly translated, tracking user telemetry, or requiring background memory footprints exceeding modern text editors.
                 </p>
                 <p>
-                  <strong>Phantom Device Studio</strong> was created by independently sniffing raw USB HID packets on the Acer Phantom X12 receiver (<code>VID: 0x248A / PID: 0x8266</code>). By decoding report queries <code>0x03</code>, <code>0x0E</code>, and lighting write <code>0x21</code>, we proved that browser-native WebHID can configure high-tier hardware with 100% transparency.
+                  <strong>Phantom Device Studio</strong> was created by studying the YJX 2.4 GHz receiver used with the Acer Phantom X12 (<code>VID: 0xA8A5 / PID: 0x2255</code>). The app reads the observed receiver profile and battery reports and exposes the user-verified onboard lighting modes through browser-native WebHID.
                 </p>
                 <p>
                   Your support directly accelerates decoding the remaining unmapped packets for on-device button remapping and macro chunks!
@@ -568,148 +554,24 @@ export function LandingPage({
         </div>
       </section>
 
-      {/* SECTION 4: NATIVE DOWNLOADS DOCK */}
-      <section id="downloads" className="downloads-section">
+      {/* SECTION 4: WEB APP ENTRY */}
+      <section id="web-controls" className="web-app-entry">
         <div className="section-container">
           <div className="zero-install-banner">
-            <div className="banner-badge">WEB-FIRST ADVANTAGE</div>
+            <div className="banner-badge">WEB APP</div>
             <p className="banner-text">
-              Running Chrome, Edge, or Brave? You don't even need to download—launch{' '}
-              <button
-                type="button"
-                className="inline-launch-btn"
-                onClick={() => {
-                  sound.boot();
-                  onLaunchStudio();
-                }}
-              >
-                [Mouse Control via Web]
-              </button>{' '}
-              above for instant zero-install configuration.
+              The supported control app runs in Chrome or Edge. Connect the 2.4 GHz receiver, then open the studio.
             </p>
-          </div>
-
-          <div className="downloads-header">
-            <div className="section-eyebrow">STANDALONE OFFLINE UTILITIES</div>
-            <h2 className="section-heading">NATIVE DESKTOP BINARIES // HARDWARE SERVER RACK</h2>
-            <p className="section-subtext">
-              Prefer a permanent offline installation without opening a browser? Download self-contained native builds compiled with zero background daemons.
-            </p>
-          </div>
-
-          <div className="server-rack-grid">
-            {/* Bay 1: Windows */}
-            <div className="rack-card" data-os="win">
-              <div className="rack-spotlight"></div>
-              <div className="rack-top">
-                <div className="os-icon">
-                  <svg viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M0 3.449L9.75 2.1v9.451H0m10.949-9.602L24 0v11.4H10.949M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-12.901-1.799"/>
-                  </svg>
-                </div>
-                <div className="rack-meta-head">
-                  <span className="rack-badge">NATIVE INSTALLER &amp; PORTABLE</span>
-                  <span className="rack-version">v2.4.0-stable</span>
-                </div>
-              </div>
-              <h3 className="rack-os-title">WINDOWS (x64)</h3>
-              <p className="rack-os-desc">Windows 10 / 11 64-bit • Direct HID Driver Bypass • Zero Background Services</p>
-              <a
-                href="https://github.com/sonesh-2202/Acer_Phantom_X12_Software/releases"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="rack-download-btn"
-                onClick={() => sound.click()}
-              >
-                <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 2a.75.75 0 0 1 .75.75v8.69l3.22-3.22a.75.75 0 1 1 1.06 1.06l-4.5 4.5a.75.75 0 0 1-1.06 0l-4.5-4.5a.75.75 0 1 1 1.06-1.06l3.22 3.22V2.75A.75.75 0 0 1 8 2z"/></svg>
-                <span>DOWNLOAD .EXE (Windows)</span>
-              </a>
-              <div className="rack-tech-note">
-                <code>Phantom-Studio-Setup-x64.exe (18.4 MB)</code>
-              </div>
-              <details className="rack-drawer">
-                <summary>Verify SHA-256 Checksum &amp; Notes</summary>
-                <div className="drawer-content">
-                  <span className="mono-hash">SHA256: 4f8b91a27e6c5d33e0...</span>
-                  <p>Includes digital checksum verification and portable fallback executable.</p>
-                </div>
-              </details>
-            </div>
-
-            {/* Bay 2: Linux */}
-            <div className="rack-card" data-os="linux">
-              <div className="rack-spotlight"></div>
-              <div className="rack-top">
-                <div className="os-icon">
-                  <svg viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 2C8.5 2 6 5 6 9c0 2.5 1 5 1 8 0 1.5-1 2-2 2h14c-1 0-2-.5-2-2 0-3 1-5.5 1-8 0-4-2.5-7-6-7zm-2 7a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0zm4 0a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0zm-2 3c1.5 0 2.5 1 2.5 1s-1 1-2.5 1-2.5-1-2.5-1 1-1 2.5-1z"/>
-                  </svg>
-                </div>
-                <div className="rack-meta-head">
-                  <span className="rack-badge">UNIVERSAL LINUX BINARY</span>
-                  <span className="rack-version">v2.4.0-stable</span>
-                </div>
-              </div>
-              <h3 className="rack-os-title">LINUX (x86_64 / ARM64)</h3>
-              <p className="rack-os-desc">Universal .AppImage • Direct libusb / hidraw access without root</p>
-              <a
-                href="https://github.com/sonesh-2202/Acer_Phantom_X12_Software/releases"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="rack-download-btn"
-                onClick={() => sound.click()}
-              >
-                <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 2a.75.75 0 0 1 .75.75v8.69l3.22-3.22a.75.75 0 1 1 1.06 1.06l-4.5 4.5a.75.75 0 0 1-1.06 0l-4.5-4.5a.75.75 0 1 1 1.06-1.06l3.22 3.22V2.75A.75.75 0 0 1 8 2z"/></svg>
-                <span>DOWNLOAD .AppImage</span>
-              </a>
-              <div className="terminal-copy-snippet">
-                <code>chmod +x Phantom*.AppImage &amp;&amp; ./Phantom*.AppImage</code>
-                <button type="button" className="snippet-copy-btn" id="copy-linux-cmd" onClick={copyLinux}>COPY</button>
-              </div>
-              <details className="rack-drawer">
-                <summary>udev rules for 248A:8266 permissions</summary>
-                <div className="drawer-content">
-                  <pre className="udev-box"><code>SUBSYSTEM=="hidraw", ATTRS&#123;idVendor&#125;=="248a", ATTRS&#123;idProduct&#125;=="8266", MODE="0666"</code></pre>
-                </div>
-              </details>
-            </div>
-
-            {/* Bay 3: macOS */}
-            <div className="rack-card" data-os="mac">
-              <div className="rack-spotlight"></div>
-              <div className="rack-top">
-                <div className="os-icon">
-                  <svg viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.63-.77 1.06-1.85.94-2.93-.93.04-2.09.62-2.74 1.39-.58.67-1.09 1.77-.95 2.83 1.05.08 2.12-.52 2.75-1.29z"/>
-                  </svg>
-                </div>
-                <div className="rack-meta-head">
-                  <span className="rack-badge">UNIVERSAL MAC PACKAGE</span>
-                  <span className="rack-version">v2.4.0-stable</span>
-                </div>
-              </div>
-              <h3 className="rack-os-title">macOS (Apple Silicon &amp; Intel)</h3>
-              <p className="rack-os-desc">Native Metal UI Acceleration • Universal binary for M1/M2/M3/M4 &amp; Intel Macs</p>
-              <a
-                href="https://github.com/sonesh-2202/Acer_Phantom_X12_Software/releases"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="rack-download-btn"
-                onClick={() => sound.click()}
-              >
-                <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 2a.75.75 0 0 1 .75.75v8.69l3.22-3.22a.75.75 0 1 1 1.06 1.06l-4.5 4.5a.75.75 0 0 1-1.06 0l-4.5-4.5a.75.75 0 1 1 1.06-1.06l3.22 3.22V2.75A.75.75 0 0 1 8 2z"/></svg>
-                <span>DOWNLOAD .DMG (macOS)</span>
-              </a>
-              <div className="rack-tech-note">
-                <code>Phantom-Studio-Universal.dmg (21.2 MB)</code>
-              </div>
-              <details className="rack-drawer">
-                <summary>macOS IOHIDFamily Notes</summary>
-                <div className="drawer-content">
-                  <p>Sandboxed IOKit driver. Grant input monitoring permission in System Settings if prompted.</p>
-                </div>
-              </details>
-            </div>
+            <button
+              type="button"
+              className="inline-launch-btn"
+              onClick={() => {
+                sound.boot();
+                onLaunchStudio();
+              }}
+            >
+              OPEN STUDIO
+            </button>
           </div>
         </div>
       </section>

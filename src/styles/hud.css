@@ -1102,8 +1102,8 @@ html.lenis, html.lenis body {
   text-decoration: none;
 }
 
-/* DOWNLOADS SECTION */
-.downloads-section {
+/* WEB APP ENTRY */
+.web-app-entry {
   position: relative;
   z-index: 10;
   padding: 100px 0;
@@ -1117,7 +1117,7 @@ html.lenis, html.lenis body {
   display: flex;
   align-items: center;
   gap: 16px;
-  margin-bottom: 50px;
+  margin-bottom: 0;
 }
 .banner-badge {
   font-family: var(--font-mono);
@@ -1141,158 +1141,6 @@ html.lenis, html.lenis body {
   text-decoration: underline;
   cursor: pointer;
   padding: 0 4px;
-}
-
-.downloads-header {
-  margin-bottom: 40px;
-}
-
-.server-rack-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
-}
-.rack-card {
-  position: relative;
-  background: var(--panel-chassis);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid var(--panel-border);
-  box-shadow: var(--panel-highlight);
-  border-radius: 8px;
-  padding: 32px;
-  overflow: hidden;
-  transition: border-color var(--transition-fast), transform var(--transition-fast);
-}
-.rack-card:hover {
-  border-color: var(--volt);
-  transform: translateY(-3px);
-}
-.rack-spotlight {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 120px;
-  background: radial-gradient(circle at 50% 0%, rgba(163, 255, 18, 0.12) 0%, transparent 70%);
-  pointer-events: none;
-}
-
-.rack-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 20px;
-}
-.os-icon {
-  width: 44px;
-  height: 44px;
-  color: #FFFFFF;
-}
-.rack-meta-head {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-}
-.rack-badge {
-  font-family: var(--font-mono);
-  font-size: 0.65rem;
-  color: var(--volt);
-  letter-spacing: 0.05em;
-}
-.rack-version {
-  font-family: var(--font-mono);
-  font-size: 0.65rem;
-  color: var(--text-muted);
-}
-
-.rack-os-title {
-  font-family: var(--font-display);
-  font-size: 1.4rem;
-  font-weight: 700;
-  margin-bottom: 8px;
-}
-.rack-os-desc {
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-  line-height: 1.5;
-  margin-bottom: 24px;
-  min-height: 42px;
-}
-
-.rack-download-btn {
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid var(--panel-border-strong);
-  color: #FFFFFF;
-  text-decoration: none;
-  font-family: var(--font-mono);
-  font-size: 0.78rem;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  padding: 12px 18px;
-  border-radius: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  margin-bottom: 14px;
-  cursor: pointer;
-  transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
-}
-.rack-download-btn:hover {
-  background: var(--volt);
-  border-color: var(--volt);
-  color: #060709;
-}
-.rack-download-btn svg {
-  width: 14px;
-  height: 14px;
-}
-
-.rack-tech-note {
-  font-family: var(--font-mono);
-  font-size: 0.68rem;
-  color: var(--text-muted);
-  text-align: center;
-  margin-bottom: 16px;
-}
-
-.terminal-copy-snippet {
-  background: #060709;
-  border: 1px solid var(--panel-border);
-  padding: 8px 10px;
-  border-radius: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
-  margin-bottom: 16px;
-}
-
-.rack-drawer {
-  border-top: 1px solid var(--panel-border);
-  padding-top: 12px;
-  font-size: 0.75rem;
-  color: var(--text-muted);
-}
-.rack-drawer summary {
-  cursor: pointer;
-  user-select: none;
-  color: var(--text-secondary);
-}
-.drawer-content {
-  margin-top: 8px;
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
-}
-.udev-box {
-  background: #060709;
-  padding: 8px;
-  border-radius: 4px;
-  overflow-x: auto;
-  font-size: 0.65rem;
-  color: var(--volt);
 }
 
 .landing-footer {
@@ -2873,9 +2721,6 @@ html.lenis, html.lenis body {
     grid-column: span 1;
   }
   .manifesto-grid {
-    grid-template-columns: 1fr;
-  }
-  .server-rack-grid {
     grid-template-columns: 1fr;
   }
   .cockpit-workspace {

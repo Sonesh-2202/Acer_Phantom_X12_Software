@@ -156,7 +156,7 @@ export function StudioCockpit({
             </svg>
             <div className="studio-emblem-text">
               <span className="studio-title">PHANTOM STUDIO</span>
-              <span className="studio-version-tag">BUILD v2.4 // 248A:8266</span>
+              <span className="studio-version-tag">BUILD v2.4 // A8A5:2255</span>
             </div>
           </div>
         </div>
@@ -264,9 +264,9 @@ export function StudioCockpit({
             <div className="telemetry-block align-right">
               <span className="meta-label">FIRMWARE LINK</span>
               <span className="meta-val mono">
-                {connected ? 'Receiver 1000Hz' : 'Receiver not connected'}
+                {connected ? `Receiver ${activePolling}Hz` : 'Receiver not connected'}
               </span>
-              <span className="meta-sub">2.4 GHz Tri-Mode HID</span>
+              <span className="meta-sub">YJX 2.4 GHz WebHID receiver</span>
             </div>
           </div>
 
@@ -456,7 +456,7 @@ export function StudioCockpit({
                     </div>
                     <div className="terminal-tags">
                       <span className="terminal-tag">YJX-CHIP A8A5:2255</span>
-                      <span className="terminal-tag">VID:0x248A PID:0x8266</span>
+                      <span className="terminal-tag">VID:0xA8A5 PID:0x2255</span>
                     </div>
                   </div>
 
@@ -959,7 +959,7 @@ export function StudioCockpit({
                     <ul className="fact-list tactical-fact-list">
                       <li><code>source</code><span>K-Snake X11 vendor configurator</span></li>
                       <li><code>logger</code><span>tools/webhid_capture.js (passive)</span></li>
-                      <li><code>artifact</code><span>tools/hid-capture.json</span></li>
+                      <li><code>artifact</code><span>Local-only capture; excluded from Git</span></li>
                       <li><code>rule</code><span>Never issue factory reset or unverified apply</span></li>
                     </ul>
                     <a
@@ -1048,13 +1048,13 @@ export function StudioCockpit({
                   <div className="spec-plate-inner">
                     <div className="spec-plate-header">
                       <div className="plate-title">ACER PHANTOM X12 // TACTICAL WEBHID SUITE</div>
-                      <div className="plate-serial">SER: PX12-248A-8266-REV2</div>
+                      <div className="plate-serial">YJX 2.4 GHz RECEIVER</div>
                     </div>
 
                     <div className="plate-grid">
                       <div className="plate-cell">
                         <span className="pk">HARDWARE VID:PID</span>
-                        <span className="pv mono">0x248A : 0x8266 (YJX 0xA8A5:0x2255)</span>
+                        <span className="pv mono">0xA8A5 : 0x2255</span>
                       </div>
                       <div className="plate-cell">
                         <span className="pk">TRANSPORT LAYER</span>
@@ -1062,11 +1062,11 @@ export function StudioCockpit({
                       </div>
                       <div className="plate-cell">
                         <span className="pk">OPTICAL ENGINE</span>
-                        <span className="pv mono">12,000 DPI / 1000Hz (1.0ms) Polling</span>
+                        <span className="pv mono">Up to 12,000 DPI / profile-reported polling</span>
                       </div>
                       <div className="plate-cell">
                         <span className="pk">PROJECT LICENSE</span>
-                        <span className="pv mono">Open Source / MIT / Public Domain Research</span>
+                        <span className="pv mono">Open-source WebHID research project</span>
                       </div>
                     </div>
 

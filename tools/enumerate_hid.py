@@ -68,19 +68,18 @@ def decode_descriptor(data: list[int]) -> tuple[dict[int, dict[str, int]], list[
 
 def main() -> None:
     RAW.mkdir(parents=True, exist_ok=True)
-    devices = hid.enumerate()
-    map_lines = ["# HID device map", "", "Captured from the currently connected Windows system using hidapi. This lists HID top-level collections, not proof that each entry is the mouse itself.", "", "| VID:PID | Manufacturer | Product | Serial | Usage page | Usage | Interface | Bus | Path |", "|---|---|---|---|---:|---:|---:|---:|---|"]
-    descriptor_lines = ["# HID report descriptor inventory", "", "Raw report descriptors were retrieved through hidapi's read-only `get_report_descriptor()` call. Each HID top-level collection/path is captured independently; reports below are decoded from descriptor main items.", ""]
-    for index, info in enumerate(devices, 1):
+    devices = hid.enumerate(0xA8A5, 0x2255)
+    map_lines = ["# YJX receiver HID collections", "", "Captured through read-only hidapi enumeration. Collection paths and serial values are deliberately omitted.", "", "| VID:PID | Manufacturer | Product | Usage page | Usage | Interface | Bus |", "|---|---|---|---:|---:|---:|---:|"]
+    descriptor_lines = ["# YJX receiver report descriptors", "", "Descriptors were retrieved with hidapi's read-only `get_report_descriptor()` call. Only the confirmed `A8A5:2255` receiver is enumerated; host keyboard and display collections are excluded.", ""]
+    for info in devices:
         vid, pid = info["vendor_id"], info["product_id"]
         path = info["path"]
         def val(key: str, current: dict[str, object] = info) -> str:
             value = current.get(key, "")
             return value.decode(errors="replace") if isinstance(value, bytes) else str(value or "")
-        path_text = path.decode(errors="replace") if isinstance(path, bytes) else str(path)
         map_lines.append(
-            f"| `{vid:04X}:{pid:04X}` | {val('manufacturer_string')} | {val('product_string')} | {val('serial_number')} | "
-            f"`0x{info.get('usage_page', 0):04X}` | `0x{info.get('usage', 0):04X}` | {info.get('interface_number', -1)} | {info.get('bus_type', '')} | `{path_text}` |"
+            f"| `{vid:04X}:{pid:04X}` | {val('manufacturer_string')} | {val('product_string')} | "
+            f"`0x{info.get('usage_page', 0):04X}` | `0x{info.get('usage', 0):04X}` | {info.get('interface_number', -1)} | {info.get('bus_type', '')} |"
         )
         handle = hid.device()
         try:
@@ -91,7 +90,7 @@ def main() -> None:
             continue
         finally:
             handle.close()
-        safe_name = f"{index:02d}_{vid:04X}_{pid:04X}_mi{info.get('interface_number', -1)}_up{info.get('usage_page', 0):04X}_u{info.get('usage', 0):04X}.txt"
+        safe_name = f"{vid:04X}_{pid:04X}_mi{info.get('interface_number', -1)}_up{info.get('usage_page', 0):04X}_u{info.get('usage', 0):04X}.txt"
         raw_path = RAW / safe_name
         raw_path.write_text(" ".join(f"{byte:02X}" for byte in descriptor) + "\n", encoding="ascii")
         reports, decoded = decode_descriptor(descriptor)
@@ -113,7 +112,7 @@ def main() -> None:
         ]
     (DOCS / "device_map.md").write_text("\n".join(map_lines) + "\n", encoding="utf-8")
     (DOCS / "hid_descriptors.md").write_text("\n".join(descriptor_lines), encoding="utf-8")
-    print(f"Enumerated {len(devices)} HID collections; saved descriptors under {RAW}")
+    print(f"Enumerated {len(devices)} YJX receiver collections; saved descriptors under {RAW}")
 
 
 if __name__ == "__main__":

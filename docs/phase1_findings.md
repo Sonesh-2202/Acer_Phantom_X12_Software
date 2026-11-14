@@ -1,5 +1,7 @@
 # Phase 1 — protocol source search
 
+> Historical source-search notes. Later user captures confirmed additional receiver behavior; use [the current protocol notes](protocol.md) for present evidence and status.
+
 ## Findings
 
 - **Exact VID/PID search:** The 2.4 GHz receiver `A8A5:2255` identifies as `YJX-CHIP` and shares its ID and interface shape with the YJX2012 receiver family. An open-source project for the Rajin Blaze Claws mouse documents the same receiver ID, the same vendor control collection shape (interface 2, 64-byte input/output, no report ID), and packet captures from that sibling's Windows WebHID app. This is a strong protocol lead, not proof that every Acer firmware feature is identical. [Claws Mouse Control](https://github.com/naevui/claws-mouse-linux)

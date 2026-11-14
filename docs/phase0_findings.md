@@ -1,5 +1,7 @@
 # Phase 0 findings
 
+> Historical environment and descriptor snapshot. Some conclusions below were superseded by later receiver captures. Use [the current protocol notes](protocol.md) and [device map](device_map.md) as authoritative.
+
 Captured 2026-11-14 on Windows using Python 3.14.3, pip 26.3, and Git 2.52.0.
 
 ## Environment
