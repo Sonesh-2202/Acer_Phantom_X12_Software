@@ -54,11 +54,35 @@ def test_source_derived_full_profile_packet_matches_known_layout() -> None:
     profile = ActiveProfile(4, 1, (1200, 2400, 3200, 4800, 6400, 12000))
     packet = build_source_derived_profile_write(profile)
     expected = (
-        bytes.fromhex("55 0F AE 0A 2F 01 01 01 00 03 04 06 01")
+        bytes.fromhex("55 0F AE 0A 2F 01 01 00 00 00 04 06 01")
         + struct.pack("<6H", 1200, 2400, 3200, 4800, 6400, 12000)
         + bytes(24)
-        + bytes.fromhex("FF 01 0A 00 FF")
-        + bytes(10)
+        + bytes.fromhex("FF 01 0A 01 FF 00")
+        + bytes(9)
     )
     assert len(packet) == 64
     assert packet == expected
+
+
+def test_source_derived_full_profile_preserves_base_report_tail() -> None:
+    profile = ActiveProfile(3, 2, (800, 1600, 2400, 3200, 4800, 6400))
+    base = bytearray(64)
+    base[0:2] = bytes.fromhex("AA 0E")
+    # Custom arbitrary tail bytes in base report
+    base[25:64] = b"\x42" * 39
+    packet = build_source_derived_profile_write(profile, base_report=bytes(base))
+    assert len(packet) == 64
+    assert packet[:10] == bytes.fromhex("55 0F AE 0A 2F 01 01 00 00 00")
+    assert packet[10] == 3
+    assert packet[11] == 6
+    assert packet[12] == 2
+    assert packet[25:64] == b"\x42" * 39
+
+
+def test_profile_bounds_validation() -> None:
+    with pytest.raises(ProtocolError):
+        build_source_derived_profile_write(ActiveProfile(99, 1, (1200, 2400, 3200, 4800, 6400, 12000)))
+    with pytest.raises(ProtocolError):
+        build_source_derived_profile_write(ActiveProfile(4, 0, (1200, 2400, 3200, 4800, 6400, 12000)))
+    with pytest.raises(ProtocolError):
+        build_source_derived_profile_write(ActiveProfile(4, 1, (10, 2400, 3200, 4800, 6400, 12000)))

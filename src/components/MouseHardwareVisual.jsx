@@ -165,7 +165,9 @@ export function MouseHardwareVisual({
             <div className="hud-callout callout-bottom-left">
               <div className="callout-badge">
                 <span className="callout-label">CHASSIS POWER</span>
-                <span className="callout-val">{battery}% BAT</span>
+                <span className="callout-val">
+                  {Number.isFinite(battery) ? `${battery}% BAT` : 'WAITING 0xD0'}
+                </span>
               </div>
             </div>
           </>

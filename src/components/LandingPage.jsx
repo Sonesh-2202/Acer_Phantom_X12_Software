@@ -591,7 +591,7 @@ export function LandingPage({
             <a href="https://github.com/sonesh-2202/Acer_Phantom_X12_Software" target="_blank" rel="noopener noreferrer" className="footer-link-btn">GitHub Repository</a>
           </div>
           <div className="footer-right">
-            <span className="version-tag">BUILD v2.4 // 2026.11</span>
+            <span className="version-tag">LAUNCH READY // A8A5:2255</span>
           </div>
         </div>
       </footer>

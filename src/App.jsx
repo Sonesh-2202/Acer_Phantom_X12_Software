@@ -1,17 +1,28 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Lenis from 'lenis';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { sound } from './utils/audio';
 import {
   FILTER,
+  WIRED_FILTER,
+  BLUETOOTH_HID_FILTER,
   POLLING,
   EFFECTS,
+  DEFAULT_PROFILE,
+  DEFAULT_BUTTON_MAPPINGS,
   queryDevice,
   buildLightingPacket,
+  writeProfileToHardware,
   waitForCommand,
   isVendorDevice,
+  isWiredDevice,
+  isBluetoothHidDevice,
   findVendorDevice,
+  parseProfileReport,
+  parseInputReport,
+  validateProfile,
+  validateMacro,
 } from './utils/webhid';
 import { LandingPage } from './components/LandingPage';
 import { StudioCockpit } from './components/StudioCockpit';
@@ -20,27 +31,93 @@ import { LegalModal } from './components/LegalModal';
 
 gsap.registerPlugin(ScrollTrigger);
 
+const INITIAL_PROFILES = [
+  {
+    id: 'default',
+    name: 'Tactical Baseline (1000Hz)',
+    pollingRate: 1000,
+    activeStage: 1,
+    stages: [1200, 2400, 3200, 4800, 6400, 12000],
+    selectedEffect: 0,
+    activeColor: '#A3FF12',
+    speed: 50,
+    brightness: 75,
+  },
+];
+
 export function App() {
   const [currentView, setCurrentView] = useState('landing'); // 'landing' | 'studio'
   const [device, setDevice] = useState(null);
   const [connected, setConnected] = useState(false);
-  const [battery, setBattery] = useState(59);
-  const [chargeStatus, setChargeStatus] = useState('ON BATTERY');
+  const [wiredConnected, setWiredConnected] = useState(false);
+  const [wiredControlReady, setWiredControlReady] = useState(false);
+  const [bluetoothConnected, setBluetoothConnected] = useState(false);
+  const [bluetoothHidConnected, setBluetoothHidConnected] = useState(false);
+  const [bluetoothHidControlReady, setBluetoothHidControlReady] = useState(false);
+
+  // Real telemetry battery state (no hardcoded initial fake percentage)
+  const [battery, setBattery] = useState(null);
+  const [chargeStatus, setChargeStatus] = useState('UNKNOWN');
+  const [batteryTelemetryStatus, setBatteryTelemetryStatus] = useState('unavailable'); // 'unavailable' | 'waiting' | 'live' | 'stale'
+
+  // Performance telemetry state
   const [activeStage, setActiveStage] = useState(1);
   const [activeDpi, setActiveDpi] = useState(1200);
   const [activePolling, setActivePolling] = useState(1000);
-  const [stages, setStages] = useState([1200, 2400, 3200, 4800, 8000, 12000]);
+  const [stages, setStages] = useState([1200, 2400, 3200, 4800, 6400, 12000]);
+  const [hardwareProfile, setHardwareProfile] = useState(null);
+  const [isApplyingProfile, setIsApplyingProfile] = useState(false);
+
+  // Lighting state
   const [selectedEffect, setSelectedEffect] = useState(0);
   const [activeColor, setActiveColor] = useState('#A3FF12');
+  const [isApplyingLighting, setIsApplyingLighting] = useState(false);
+
+  // Button mapping state
+  const [buttonMappings, setButtonMappings] = useState(DEFAULT_BUTTON_MAPPINGS);
+
+  // Profiles and macros state
+  const [profiles, setProfiles] = useState(INITIAL_PROFILES);
+  const [activeProfileId, setActiveProfileId] = useState('default');
+  const [macros, setMacros] = useState([
+    {
+      name: 'Triple Burst Tap',
+      loopCount: 1,
+      events: [
+        { kind: 'mouse', action: 'left_click', delay_ms: 10 },
+        { kind: 'mouse', action: 'left_click', delay_ms: 35 },
+        { kind: 'mouse', action: 'left_click', delay_ms: 35 },
+      ],
+    },
+  ]);
+
+  // UI state
   const [toastMessage, setToastMessage] = useState(null);
   const [edgeFlash, setEdgeFlash] = useState(false);
   const [theme, setTheme] = useState('dark');
   const [isPatronageOpen, setIsPatronageOpen] = useState(false);
   const [isLegalOpen, setIsLegalOpen] = useState(false);
-  const [savedScenes, setSavedScenes] = useState([]);
 
   const lenisRef = useRef(null);
   const toastTimeoutRef = useRef(null);
+  const lastBatteryTimestampRef = useRef(null);
+  const batteryValueRef = useRef(null);
+  const pendingBatterySampleRef = useRef(null);
+  const batterySourceRef = useRef(null);
+  const bluetoothDeviceRef = useRef(null);
+  const bluetoothDisconnectListenerRef = useRef(null);
+  const batteryCharacteristicRef = useRef(null);
+  const bluetoothBatteryListenerRef = useRef(null);
+  const bluetoothHidDeviceRef = useRef(null);
+  const bluetoothHidInputListenerRef = useRef(null);
+  const deviceRef = useRef(null);
+  const wiredDeviceRef = useRef(null);
+  const wiredInputListenerRef = useRef(null);
+  const rawBaseProfileBytesRef = useRef(null);
+
+  useEffect(() => {
+    deviceRef.current = device;
+  }, [device]);
 
   // Initialize Lenis smooth scroll and sync with GSAP ticker & ScrollTrigger
   useEffect(() => {
@@ -64,18 +141,28 @@ export function App() {
     };
   }, []);
 
-  // Load saved scenes from localStorage
+  // Load saved local storage states on boot
   useEffect(() => {
     try {
-      const stored = localStorage.getItem('phantom-scenes');
-      if (stored) setSavedScenes(JSON.parse(stored));
+      const storedScenes = localStorage.getItem('phantom-scenes');
+      if (storedScenes) setSavedScenes(JSON.parse(storedScenes));
+
+      const storedProfiles = localStorage.getItem('phantom-profiles');
+      if (storedProfiles) setProfiles(JSON.parse(storedProfiles));
+
+      const storedMacros = localStorage.getItem('phantom-macros');
+      if (storedMacros) setMacros(JSON.parse(storedMacros));
+
+      const storedButtons = localStorage.getItem('phantom-button-mappings');
+      if (storedButtons) setButtonMappings(JSON.parse(storedButtons));
+
       const storedTheme = localStorage.getItem('phantom-theme');
       if (storedTheme) {
         setTheme(storedTheme);
         document.documentElement.setAttribute('data-theme', storedTheme);
       }
-    } catch {
-      // Local storage unavailable fallback
+    } catch (e) {
+      console.warn('[Phantom Studio] Local storage load notice:', e);
     }
   }, []);
 
@@ -84,12 +171,25 @@ export function App() {
     document.documentElement.style.setProperty('--active-rgb-glow', activeColor);
   }, [activeColor]);
 
+  // Check for stale battery telemetry (warn if no report within 45s of active link)
+  useEffect(() => {
+    const timer = setInterval(() => {
+      if ((connected || wiredConnected || bluetoothConnected || bluetoothHidConnected) && lastBatteryTimestampRef.current) {
+        const elapsed = Date.now() - lastBatteryTimestampRef.current;
+        if (elapsed > 45000) {
+          setBatteryTelemetryStatus('stale');
+        }
+      }
+    }, 5000);
+    return () => clearInterval(timer);
+  }, [connected, wiredConnected, bluetoothConnected, bluetoothHidConnected]);
+
   // Toast helper
-  const showToast = (msg) => {
+  const showToast = useCallback((msg) => {
     setToastMessage(msg);
     if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
-    toastTimeoutRef.current = setTimeout(() => setToastMessage(null), 3600);
-  };
+    toastTimeoutRef.current = setTimeout(() => setToastMessage(null), 3800);
+  }, []);
 
   // Screen-edge flash helper
   const triggerEdgeFlash = () => {
@@ -107,67 +207,74 @@ export function App() {
     } catch {}
   };
 
-  // Battery event handler
-  const handleBatteryUpdate = (level, chargeFlag) => {
+  // Battery update handler
+  const handleBatteryUpdate = (level, chargeFlag, source = 'receiver') => {
     if (!Number.isFinite(level) || level < 0 || level > 100) return;
-    setBattery(level);
-    setChargeStatus(chargeFlag ? 'CHARGING' : 'ON BATTERY');
+    // Receiver reports can contain one-off percentage spikes. Show the first
+    // real reading immediately, then require a second consecutive matching
+    // report before changing the displayed percentage.
+    const displayedBattery = batteryValueRef.current;
+    if (displayedBattery === null) {
+      batteryValueRef.current = level;
+      setBattery(level);
+      pendingBatterySampleRef.current = null;
+    } else if (level === displayedBattery) {
+      pendingBatterySampleRef.current = null;
+    } else {
+      const pending = pendingBatterySampleRef.current;
+      if (pending?.level === level) {
+        batteryValueRef.current = level;
+        pendingBatterySampleRef.current = null;
+        setBattery(level);
+      } else {
+        pendingBatterySampleRef.current = { level };
+      }
+    }
+    batterySourceRef.current = source;
+    setChargeStatus(chargeFlag === null ? 'NOT REPORTED' : chargeFlag ? 'CHARGING' : 'ON BATTERY');
+    setBatteryTelemetryStatus('live');
+    lastBatteryTimestampRef.current = Date.now();
+  };
+
+  // Handle incoming hardware input reports
+  const handleInputReport = (event, source = 'receiver') => {
+    const bytes = Array.from(new Uint8Array(event.data.buffer, event.data.byteOffset, event.data.byteLength));
+    const parsed = parseInputReport(bytes);
+    if (!parsed) return;
+
+    if (parsed.type === 'battery') {
+      handleBatteryUpdate(parsed.level, parsed.charging, source);
+    } else if (parsed.type === 'dpi_toggle') {
+      if (!['receiver', 'wired', 'bluetoothHid'].includes(source)) return;
+      if (parsed.stage >= 1 && parsed.stage <= stages.length) {
+        setActiveStage(parsed.stage);
+        setActiveDpi(stages[parsed.stage - 1]);
+      }
+      if (parsed.pollingRate) {
+        setActivePolling(parsed.pollingRate);
+      }
+      triggerEdgeFlash();
+      sound.ack();
+      showToast(`Hardware DPI Button Pressed: Stage ${parsed.stage} (${stages[parsed.stage - 1]} DPI)`);
+    }
   };
 
   // Profile parser for report 0xAA 0x0E
   const handleApplyProfile = (bytes) => {
-    if (bytes.length < 25 || bytes[0] !== 0xAA || bytes[1] !== 0x0E) {
-      throw new Error('Unexpected DPI profile structure from receiver.');
-    }
-    const newStages = [];
-    for (let offset = 13; offset < 25; offset += 2) {
-      newStages.push(bytes[offset] | (bytes[offset + 1] << 8));
-    }
-    const active = bytes[12];
-    const pollRate = POLLING[bytes[10]] || 1000;
-    const mode = bytes[9];
+    const parsed = parseProfileReport(bytes);
+    rawBaseProfileBytesRef.current = bytes;
 
-    setStages(newStages);
-    setActiveStage(active);
-    setActiveDpi(newStages[active - 1] || 1200);
-    setActivePolling(pollRate);
-    setSelectedEffect(mode);
+    setStages(parsed.stages);
+    setActiveStage(parsed.activeStage);
+    setActiveDpi(parsed.stages[parsed.activeStage - 1] || 1200);
+    setActivePolling(parsed.pollingRate);
 
-    const eff = EFFECTS.find((e) => e.id === mode);
-    if (eff) setActiveColor(eff.hex);
+    setHardwareProfile({
+      pollingRate: parsed.pollingRate,
+      activeStage: parsed.activeStage,
+      stages: parsed.stages,
+    });
   };
-
-  // Input report handler
-  const handleInputReport = (event) => {
-    const bytes = Array.from(new Uint8Array(event.data.buffer, event.data.byteOffset, event.data.byteLength));
-    if (bytes.length < 2 || bytes[0] !== 0xAA) return;
-
-    if (bytes[1] === 0xFA) {
-      // 0xD0: Battery report
-      if (bytes.length > 10 && bytes[8] === 0xD0) {
-        handleBatteryUpdate(bytes[9], bytes[10]);
-      }
-      // 0xAE: Hardware DPI toggle or polling report
-      else if (bytes.length > 10 && bytes[2] === 0xAE) {
-        const stage = bytes[9];
-        const rate = bytes[10];
-        if (stage >= 1 && stage <= stages.length) {
-          setActiveStage(stage);
-          setActiveDpi(stages[stage - 1]);
-        }
-        if (POLLING[rate]) {
-          setActivePolling(POLLING[rate]);
-        }
-        triggerEdgeFlash();
-        sound.ack();
-      }
-    }
-  };
-
-  const deviceRef = useRef(null);
-  useEffect(() => {
-    deviceRef.current = device;
-  }, [device]);
 
   // Disconnect WebHID
   const disconnectDevice = async () => {
@@ -176,13 +283,158 @@ export function App() {
       try {
         await currentDev.close();
       } catch (err) {
-        console.warn(err);
+        console.warn('[Phantom WebHID] Disconnect error:', err);
       }
     }
     setDevice(null);
     setConnected(false);
+    const alternativeBatteryLink = (batterySourceRef.current === 'bluetooth' && bluetoothConnected)
+      || (batterySourceRef.current === 'wired' && wiredConnected);
+    if (!alternativeBatteryLink) {
+      batteryValueRef.current = null;
+      batterySourceRef.current = null;
+      setBattery(null);
+      pendingBatterySampleRef.current = null;
+      setChargeStatus('UNKNOWN');
+      setBatteryTelemetryStatus('unavailable');
+      lastBatteryTimestampRef.current = null;
+    }
     sound.toggle();
     showToast('Hardware receiver disconnected.');
+  };
+
+  // Wired mode is allow-listed separately. A documented read-only profile
+  // query must validate before its matching control operations are enabled.
+  const disconnectWiredDevice = async () => {
+    const wiredDev = wiredDeviceRef.current;
+    if (wiredDev) {
+      if (wiredInputListenerRef.current) {
+        wiredDev.removeEventListener('inputreport', wiredInputListenerRef.current);
+      }
+      if (wiredDev.opened) {
+        try {
+          await wiredDev.close();
+        } catch (err) {
+          console.warn('[Phantom WebHID] Wired disconnect error:', err);
+        }
+      }
+    }
+    wiredDeviceRef.current = null;
+    wiredInputListenerRef.current = null;
+    setWiredConnected(false);
+    setWiredControlReady(false);
+    if (batterySourceRef.current === 'wired') {
+      batteryValueRef.current = null;
+      batterySourceRef.current = null;
+      pendingBatterySampleRef.current = null;
+      setBattery(null);
+      setChargeStatus('UNKNOWN');
+      setBatteryTelemetryStatus('unavailable');
+      lastBatteryTimestampRef.current = null;
+    }
+    showToast('Wired telemetry disconnected.');
+  };
+
+  const attachWiredDevice = async (wiredDev) => {
+    if (!isWiredDevice(wiredDev)) return;
+    try {
+      if (!wiredDev.opened) await wiredDev.open();
+      if (wiredInputListenerRef.current) {
+        wiredDev.removeEventListener('inputreport', wiredInputListenerRef.current);
+      }
+      const listener = (event) => handleInputReport(event, 'wired');
+      wiredInputListenerRef.current = listener;
+      wiredDeviceRef.current = wiredDev;
+      wiredDev.addEventListener('inputreport', listener);
+      setWiredConnected(true);
+      setWiredControlReady(false);
+      batteryValueRef.current = null;
+      batterySourceRef.current = null;
+      pendingBatterySampleRef.current = null;
+      setBattery(null);
+      setChargeStatus('UNKNOWN');
+      setBatteryTelemetryStatus('waiting');
+      if (currentView !== 'studio') transitionToStudio();
+      try {
+        // 0x0E is a documented read-only query. Validate the returned profile
+        // before enabling the corresponding verified read/write controls.
+        const profileBytes = await queryDevice(wiredDev, 0x0E, 1400);
+        const profile = parseProfileReport(profileBytes);
+        validateProfile(profile);
+        handleApplyProfile(profileBytes);
+        setWiredControlReady(true);
+        showToast('Wired profile read confirmed. Hardware controls enabled.');
+      } catch (error) {
+        console.warn('[Phantom WebHID] Wired profile read check failed:', error);
+        showToast('Wired link connected, but its profile did not pass the safe read check; hardware controls stay disabled.');
+      }
+    } catch (error) {
+      console.error('[Phantom WebHID] Wired attach error:', error);
+      showToast(`Wired connection error: ${error.message || 'Could not open the vendor collection.'}`);
+    }
+  };
+
+  const disconnectBluetoothHid = async () => {
+    const hidDevice = bluetoothHidDeviceRef.current;
+    if (hidDevice) {
+      if (bluetoothHidInputListenerRef.current) {
+        hidDevice.removeEventListener('inputreport', bluetoothHidInputListenerRef.current);
+      }
+      if (hidDevice.opened) {
+        try {
+          await hidDevice.close();
+        } catch (error) {
+          console.warn('[Phantom WebHID] Bluetooth HID disconnect error:', error);
+        }
+      }
+    }
+    bluetoothHidDeviceRef.current = null;
+    bluetoothHidInputListenerRef.current = null;
+    setBluetoothHidConnected(false);
+    setBluetoothHidControlReady(false);
+    if (batterySourceRef.current === 'bluetoothHid') {
+      batteryValueRef.current = null;
+      batterySourceRef.current = null;
+      pendingBatterySampleRef.current = null;
+      setBattery(null);
+      setChargeStatus('UNKNOWN');
+      setBatteryTelemetryStatus('unavailable');
+      lastBatteryTimestampRef.current = null;
+    }
+    showToast('Bluetooth HID control disconnected.');
+  };
+
+  const attachBluetoothHidDevice = async (hidDevice) => {
+    if (!isBluetoothHidDevice(hidDevice)) return;
+    try {
+      if (!hidDevice.opened) await hidDevice.open();
+      if (bluetoothHidInputListenerRef.current) {
+        hidDevice.removeEventListener('inputreport', bluetoothHidInputListenerRef.current);
+      }
+      const listener = (event) => handleInputReport(event, 'bluetoothHid');
+      bluetoothHidInputListenerRef.current = listener;
+      bluetoothHidDeviceRef.current = hidDevice;
+      hidDevice.addEventListener('inputreport', listener);
+      setBluetoothHidConnected(true);
+      setBluetoothHidControlReady(false);
+      if (currentView !== 'studio') transitionToStudio();
+
+      try {
+        // Only enable control after the known read-only profile response validates.
+        const profileBytes = await queryDevice(hidDevice, 0x0E, 1400);
+        const profile = parseProfileReport(profileBytes);
+        validateProfile(profile);
+        handleApplyProfile(profileBytes);
+        setBluetoothHidControlReady(true);
+        showToast('Bluetooth HID profile read confirmed. Hardware controls enabled.');
+      } catch (error) {
+        console.warn('[Phantom WebHID] Bluetooth HID profile read check failed:', error);
+        showToast('Bluetooth HID is connected, but its profile did not pass the safe read check; controls stay disabled.');
+      }
+    } catch (error) {
+      console.error('[Phantom WebHID] Bluetooth HID attach error:', error);
+      showToast(`Bluetooth HID error: ${error.message || 'Could not open its vendor-control collection.'}`);
+    }
   };
 
   // Load state from hardware with pacing and non-fatal query timeouts
@@ -208,7 +460,7 @@ export function App() {
 
       sound.boot();
       triggerEdgeFlash();
-      showToast('Receiver profile loaded (2.4 GHz Link active).');
+      showToast('Receiver profile loaded (2.4 GHz Link active). Waiting for battery telemetry.');
     } catch (err) {
       console.warn('[Phantom WebHID] Notice during loadHardwareState:', err);
     }
@@ -221,7 +473,6 @@ export function App() {
         await dev.open();
       }
 
-      // Remove any prior listener if present
       try {
         dev.removeEventListener('inputreport', handleInputReport);
         dev.removeEventListener('disconnect', disconnectDevice);
@@ -232,6 +483,13 @@ export function App() {
 
       setDevice(dev);
       setConnected(true);
+      batteryValueRef.current = null;
+      batterySourceRef.current = null;
+      setBattery(null);
+      setChargeStatus('UNKNOWN');
+      pendingBatterySampleRef.current = null;
+      setBatteryTelemetryStatus('waiting');
+
       showToast(
         isAuto
           ? `Auto-connected to ${dev.productName || 'Acer Phantom X12 Receiver'}`
@@ -255,14 +513,18 @@ export function App() {
   useEffect(() => {
     if (!window.isSecureContext || !navigator.hid) return;
 
-    // Check if user already authorized device in a previous session
     navigator.hid
       .getDevices()
       .then((devices) => {
         const vendorDev = findVendorDevice(devices);
+        const wiredDev = devices.find(isWiredDevice);
+        const bluetoothHidDev = devices.find(isBluetoothHidDevice);
         if (vendorDev) {
-          console.log('[Phantom WebHID] Found previously authorized device, auto-connecting...', vendorDev);
           attachDevice(vendorDev, true);
+        } else if (wiredDev) {
+          attachWiredDevice(wiredDev);
+        } else if (bluetoothHidDev) {
+          attachBluetoothHidDevice(bluetoothHidDev);
         }
       })
       .catch((err) => {
@@ -270,16 +532,22 @@ export function App() {
       });
 
     const onConnect = (event) => {
-      console.log('[Phantom WebHID] USB plug event detected:', event.device);
       if (isVendorDevice(event.device)) {
         attachDevice(event.device, true);
+      } else if (isWiredDevice(event.device)) {
+        attachWiredDevice(event.device);
+      } else if (isBluetoothHidDevice(event.device)) {
+        attachBluetoothHidDevice(event.device);
       }
     };
 
     const onDisconnect = (event) => {
-      console.log('[Phantom WebHID] USB unplug event detected:', event.device);
       if (deviceRef.current && event.device === deviceRef.current) {
         disconnectDevice();
+      } else if (wiredDeviceRef.current && event.device === wiredDeviceRef.current) {
+        disconnectWiredDevice();
+      } else if (bluetoothHidDeviceRef.current && event.device === bluetoothHidDeviceRef.current) {
+        disconnectBluetoothHid();
       }
     };
 
@@ -295,60 +563,442 @@ export function App() {
   // Connect WebHID (User initiated via click)
   const connectDevice = async () => {
     if (!window.isSecureContext) {
-      showToast(`WebHID needs a secure page. This page is ${window.location.origin}. Open the app at http://localhost:5173/ or its HTTPS GitHub Pages address.`);
+      showToast(`WebHID requires a secure context. Current page: ${window.location.origin}. Use http://localhost:5173/ or HTTPS.`);
       return;
     }
     if (!navigator.hid) {
-      showToast('This browser does not expose WebHID. Open this page directly in Chrome or Edge (not Firefox, Safari, or an embedded browser).');
+      showToast('WebHID is not supported by this browser. Please open in Chrome or Edge.');
       return;
     }
 
     try {
-      // Keep this as the first awaited operation: requestDevice requires the
-      // transient user activation from the Connect button click.
       const devices = await navigator.hid.requestDevice({ filters: FILTER });
       if (!devices || devices.length === 0) return;
 
       const selectedDev = findVendorDevice(devices);
       if (!selectedDev) {
-        showToast('The selected device is not the supported YJX receiver collection (A8A5:2255).');
+        showToast('Selected device is not the YJX receiver collection (A8A5:2255, FF01:0010).');
         return;
       }
       await attachDevice(selectedDev, false);
     } catch (error) {
-      console.error('[Phantom WebHID] requestDevice error:', error);
-      if (error.name !== 'NotFoundError') {
-        showToast(`${error.name || 'Connection error'}: ${error.message || 'Could not connect to receiver.'}`);
+      if (error.name === 'NotFoundError') {
+        showToast('Device selection window cancelled.');
+        return;
       }
+      console.error('[Phantom WebHID] requestDevice error:', error);
+      showToast(`${error.name || 'Connection error'}: ${error.message || 'Could not connect.'}`);
     }
   };
 
-  // Apply lighting effect
-  const applyEffectToHardware = async () => {
-    if (!device) {
-      showToast('Connect the 2.4 GHz USB receiver first.');
+  const connectWiredDevice = async () => {
+    if (!window.isSecureContext || !navigator.hid) {
+      showToast('Wired HID access requires Chrome or Edge on a secure page.');
       return;
     }
-    const eff = EFFECTS.find((e) => e.id === selectedEffect);
+    try {
+      const devices = await navigator.hid.requestDevice({ filters: WIRED_FILTER });
+      const wiredDev = devices.find(isWiredDevice);
+      if (!wiredDev) return;
+      await attachWiredDevice(wiredDev);
+    } catch (error) {
+      if (error.name === 'NotFoundError') {
+        showToast('Wired device picker cancelled.');
+        return;
+      }
+      console.error('[Phantom WebHID] Wired requestDevice error:', error);
+      showToast(`${error.name || 'Connection error'}: ${error.message || 'Could not connect over wired HID.'}`);
+    }
+  };
+
+  const connectBluetoothHid = async () => {
+    if (!window.isSecureContext || !navigator.hid) {
+      showToast('Bluetooth HID access requires Chrome or Edge on a secure page.');
+      return;
+    }
+    try {
+      const devices = await navigator.hid.requestDevice({ filters: BLUETOOTH_HID_FILTER });
+      const selected = devices[0];
+      if (!selected) return;
+      if (!isBluetoothHidDevice(selected)) {
+        const usages = (selected.collections || [])
+          .map((collection) => `${collection.usagePage?.toString(16) || '????'}:${collection.usage?.toString(16) || '????'}`)
+          .join(', ');
+        showToast(`Bluetooth HID lacks the required vendor-control collection FF01:0010 (found ${usages || 'none'}).`);
+        return;
+      }
+      await attachBluetoothHidDevice(selected);
+    } catch (error) {
+      if (error.name === 'NotFoundError') {
+        showToast('Bluetooth HID picker cancelled.');
+        return;
+      }
+      console.error('[Phantom WebHID] Bluetooth HID request error:', error);
+      showToast(`${error.name || 'Connection error'}: ${error.message || 'Could not connect to Bluetooth HID.'}`);
+    }
+  };
+
+  // Optional BLE battery telemetry. Only uses the standard, read-only Battery Service.
+  const disconnectBluetoothBattery = () => {
+    const characteristic = batteryCharacteristicRef.current;
+    if (characteristic && bluetoothBatteryListenerRef.current) {
+      characteristic.removeEventListener('characteristicvaluechanged', bluetoothBatteryListenerRef.current);
+    }
+    const bleDevice = bluetoothDeviceRef.current;
+    if (bleDevice && bluetoothDisconnectListenerRef.current) {
+      bleDevice.removeEventListener('gattserverdisconnected', bluetoothDisconnectListenerRef.current);
+    }
+    if (bleDevice?.gatt?.connected) bleDevice.gatt.disconnect();
+    bluetoothDeviceRef.current = null;
+    bluetoothDisconnectListenerRef.current = null;
+    batteryCharacteristicRef.current = null;
+    bluetoothBatteryListenerRef.current = null;
+    setBluetoothConnected(false);
+    if (batterySourceRef.current === 'bluetooth' && !deviceRef.current) {
+      batteryValueRef.current = null;
+      batterySourceRef.current = null;
+      pendingBatterySampleRef.current = null;
+      setBattery(null);
+      setChargeStatus('UNKNOWN');
+      setBatteryTelemetryStatus('unavailable');
+      lastBatteryTimestampRef.current = null;
+    }
+  };
+
+  const connectBluetoothBattery = async () => {
+    if (!window.isSecureContext || !navigator.bluetooth) {
+      showToast('Bluetooth battery access requires Chrome or Edge on a secure page.');
+      return;
+    }
+
+    let requestedDevice = null;
+    try {
+      const bleDevice = await navigator.bluetooth.requestDevice({
+        filters: [{ name: 'ACM X12' }],
+        optionalServices: ['battery_service'],
+      });
+      requestedDevice = bleDevice;
+      if (!bleDevice.gatt) throw new Error('This Bluetooth device does not expose a GATT server.');
+
+      setBatteryTelemetryStatus('waiting');
+      const server = await bleDevice.gatt.connect();
+      const service = await server.getPrimaryService('battery_service');
+      const characteristic = await service.getCharacteristic('battery_level');
+      const onBatteryValue = (event) => {
+        const level = event.target.value.getUint8(0);
+        if (level <= 100) handleBatteryUpdate(level, null, 'bluetooth');
+      };
+
+      const onDisconnected = () => {
+        if (bluetoothDeviceRef.current !== bleDevice) return;
+        bluetoothDeviceRef.current = null;
+        bluetoothDisconnectListenerRef.current = null;
+        batteryCharacteristicRef.current = null;
+        bluetoothBatteryListenerRef.current = null;
+        setBluetoothConnected(false);
+        if (batterySourceRef.current === 'bluetooth' && !deviceRef.current) {
+          batteryValueRef.current = null;
+          batterySourceRef.current = null;
+          pendingBatterySampleRef.current = null;
+          setBattery(null);
+          setChargeStatus('UNKNOWN');
+          setBatteryTelemetryStatus('unavailable');
+          lastBatteryTimestampRef.current = null;
+        }
+      };
+      bleDevice.addEventListener('gattserverdisconnected', onDisconnected);
+      bluetoothDisconnectListenerRef.current = onDisconnected;
+      characteristic.addEventListener('characteristicvaluechanged', onBatteryValue);
+      try {
+        await characteristic.startNotifications();
+      } catch (notificationError) {
+        console.info('[Phantom Studio] Battery notifications unavailable; using the initial read only.', notificationError);
+      }
+      const initialValue = await characteristic.readValue();
+      const initialLevel = initialValue.getUint8(0);
+      if (initialLevel > 100) throw new Error(`Invalid BLE battery level: ${initialLevel}%.`);
+
+      bluetoothDeviceRef.current = bleDevice;
+      batteryCharacteristicRef.current = characteristic;
+      bluetoothBatteryListenerRef.current = onBatteryValue;
+      setBluetoothConnected(true);
+      batteryValueRef.current = null;
+      batterySourceRef.current = null;
+      pendingBatterySampleRef.current = null;
+      setBattery(null);
+      handleBatteryUpdate(initialLevel, null, 'bluetooth');
+      if (currentView !== 'studio') transitionToStudio();
+      showToast('Connected to ACM X12 Bluetooth battery telemetry (read only).');
+    } catch (error) {
+      if (requestedDevice && bluetoothDisconnectListenerRef.current) {
+        requestedDevice.removeEventListener('gattserverdisconnected', bluetoothDisconnectListenerRef.current);
+        bluetoothDisconnectListenerRef.current = null;
+      }
+      if (requestedDevice?.gatt?.connected && bluetoothDeviceRef.current !== requestedDevice) {
+        requestedDevice.gatt.disconnect();
+      }
+      setBatteryTelemetryStatus(connected ? 'live' : 'unavailable');
+      showToast(error.name === 'NotFoundError'
+        ? 'Bluetooth device picker cancelled.'
+        : `Bluetooth battery unavailable: ${error.message || 'Battery Service not found.'}`);
+    }
+  };
+
+  const getControlConnection = () => {
+    if (device) return { device, mode: 'receiver' };
+    if (wiredConnected && wiredControlReady && wiredDeviceRef.current) {
+      return { device: wiredDeviceRef.current, mode: 'wired' };
+    }
+    if (bluetoothHidConnected && bluetoothHidControlReady && bluetoothHidDeviceRef.current) {
+      return { device: bluetoothHidDeviceRef.current, mode: 'bluetooth' };
+    }
+    return null;
+  };
+
+  // Apply lighting effect (Command 0x21)
+  const applyEffectToHardware = async (effectId = selectedEffect) => {
+    const connection = getControlConnection();
+    if (!connection) {
+      showToast('Connect the receiver, wired HID, or Bluetooth HID link and pass its profile read check.');
+      return;
+    }
+    const eff = EFFECTS.find((e) => e.id === effectId);
     if (!eff) return;
 
     try {
-      if (!device.opened) {
-        await device.open();
+      setIsApplyingLighting(true);
+      if (!connection.device.opened) {
+        await connection.device.open();
       }
-      const pending = waitForCommand(device, 0x21, 1500).catch((err) => {
-        console.warn('[Phantom WebHID] Lighting command 0x21 ack timed out, proceeding:', err);
-      });
-      await device.sendReport(0, buildLightingPacket(eff.id));
+      const ack = waitForCommand(connection.device, 0x21, 1500);
+      const pending = connection.mode === 'wired'
+        ? ack
+        : ack.catch((err) => {
+            console.warn('[Phantom WebHID] Lighting command 0x21 ack timed out, proceeding:', err);
+          });
+      await connection.device.sendReport(0, buildLightingPacket(eff.id));
       await pending;
 
       triggerEdgeFlash();
       sound.ack();
-      showToast(`Command 0x0${eff.id} written: ${eff.name} applied on hardware.`);
+      showToast(`Applied to hardware: ${eff.name} (Command 0x0${eff.id})`);
     } catch (error) {
-      console.error(error);
+      console.error('[Phantom WebHID] applyEffectToHardware error:', error);
       showToast(`Write error: ${error.message}`);
+    } finally {
+      setIsApplyingLighting(false);
     }
+  };
+
+  // Apply complete DPI profile to hardware (Command 0x0F with fresh read & read-back verification)
+  const applyProfileToHardware = async (candidateProfile = null) => {
+    const connection = getControlConnection();
+    if (!connection) {
+      showToast('Connect the receiver, wired HID, or Bluetooth HID link and pass its profile read check.');
+      return;
+    }
+
+    const target = candidateProfile || {
+      pollingRate: activePolling,
+      activeStage,
+      stages,
+    };
+
+    try {
+      setIsApplyingProfile(true);
+      validateProfile(target);
+
+      const verified = await writeProfileToHardware(connection.device, target);
+      setStages(verified.stages);
+      setActiveStage(verified.activeStage);
+      setActiveDpi(verified.stages[verified.activeStage - 1]);
+      setActivePolling(verified.pollingRate);
+      setHardwareProfile({
+        pollingRate: verified.pollingRate,
+        activeStage: verified.activeStage,
+        stages: verified.stages,
+      });
+
+      triggerEdgeFlash();
+      sound.ack();
+      showToast(`Hardware profile updated & verified: Stage ${verified.activeStage} (${verified.stages[verified.activeStage - 1]} DPI) @ ${verified.pollingRate}Hz`);
+    } catch (error) {
+      console.error('[Phantom WebHID] applyProfileToHardware error:', error);
+      sound.toggle();
+      showToast(`Profile write error: ${error.message}`);
+    } finally {
+      setIsApplyingProfile(false);
+    }
+  };
+
+  // Restore known-good baseline (safe restore without OEM factory-reset write)
+  const restoreKnownGoodBaseline = async () => {
+    sound.click();
+    const baseline = { ...DEFAULT_PROFILE };
+    setStages(baseline.stages);
+    setActiveStage(baseline.activeStage);
+    setActiveDpi(baseline.stages[baseline.activeStage - 1]);
+    setActivePolling(baseline.pollingRate);
+    setSelectedEffect(baseline.selectedEffect);
+
+    const eff = EFFECTS.find((e) => e.id === baseline.selectedEffect);
+    if (eff) setActiveColor(eff.hex);
+
+    setButtonMappings(DEFAULT_BUTTON_MAPPINGS);
+    try {
+      localStorage.setItem('phantom-button-mappings', JSON.stringify(DEFAULT_BUTTON_MAPPINGS));
+    } catch {}
+
+    if (getControlConnection()?.device.opened) {
+      await applyProfileToHardware(baseline);
+      await applyEffectToHardware(baseline.selectedEffect);
+      showToast('Restored and applied verified baseline profile to mouse.');
+    } else {
+      showToast('Restored local baseline settings. Connect the receiver or verified wired link to transmit.');
+    }
+  };
+
+  // Profile management helpers
+  const handleSaveProfile = (name) => {
+    if (!name || !name.trim()) {
+      showToast('Profile name cannot be empty.');
+      return;
+    }
+    const newProfile = {
+      id: `prof-${Date.now()}`,
+      name: name.trim(),
+      timestamp: new Date().toISOString(),
+      pollingRate: activePolling,
+      activeStage,
+      stages,
+      selectedEffect,
+      activeColor,
+    };
+    const updated = [...profiles.filter((p) => p.name !== name.trim()), newProfile];
+    setProfiles(updated);
+    setActiveProfileId(newProfile.id);
+    try {
+      localStorage.setItem('phantom-profiles', JSON.stringify(updated));
+    } catch {}
+    sound.ack();
+    showToast(`Profile "${newProfile.name}" saved locally.`);
+  };
+
+  const handleLoadProfile = (prof) => {
+    sound.click();
+    setActiveProfileId(prof.id);
+    if (prof.stages) setStages(prof.stages);
+    if (prof.activeStage) {
+      setActiveStage(prof.activeStage);
+      if (prof.stages) setActiveDpi(prof.stages[prof.activeStage - 1]);
+    }
+    if (prof.pollingRate) setActivePolling(prof.pollingRate);
+    if (prof.selectedEffect !== undefined) setSelectedEffect(prof.selectedEffect);
+    if (prof.activeColor) setActiveColor(prof.activeColor);
+    showToast(`Loaded profile "${prof.name}". Click Apply to transmit to hardware.`);
+  };
+
+  const handleDeleteProfile = (profId) => {
+    sound.click();
+    if (profiles.length <= 1) {
+      showToast('Cannot delete the last remaining profile.');
+      return;
+    }
+    const updated = profiles.filter((p) => p.id !== profId);
+    setProfiles(updated);
+    if (activeProfileId === profId) {
+      setActiveProfileId(updated[0].id);
+      handleLoadProfile(updated[0]);
+    }
+    try {
+      localStorage.setItem('phantom-profiles', JSON.stringify(updated));
+    } catch {}
+    showToast('Profile deleted.');
+  };
+
+  const handleExportProfile = (prof) => {
+    sound.click();
+    const payload = {
+      version: 1,
+      type: 'phantom-x12-profile',
+      exportedAt: new Date().toISOString(),
+      profile: prof,
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `phantom-x12-${prof.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast(`Exported "${prof.name}" JSON file.`);
+  };
+
+  const handleImportProfile = (file) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const data = JSON.parse(e.target.result);
+        const imported = data.profile || data;
+        validateProfile(imported);
+        const prof = {
+          id: `prof-${Date.now()}`,
+          name: imported.name || 'Imported Profile',
+          pollingRate: imported.pollingRate || 1000,
+          activeStage: imported.activeStage || 1,
+          stages: imported.stages,
+          selectedEffect: imported.selectedEffect ?? 0,
+          activeColor: imported.activeColor || '#A3FF12',
+        };
+        const updated = [...profiles, prof];
+        setProfiles(updated);
+        handleLoadProfile(prof);
+        try {
+          localStorage.setItem('phantom-profiles', JSON.stringify(updated));
+        } catch {}
+        showToast(`Imported profile "${prof.name}".`);
+      } catch (err) {
+        showToast(`Import error: ${err.message}`);
+      }
+    };
+    reader.readAsText(file);
+  };
+
+  // Macro management helpers
+  const handleSaveMacro = (macro) => {
+    try {
+      validateMacro(macro);
+      const updated = [...macros.filter((m) => m.name !== macro.name), macro];
+      setMacros(updated);
+      try {
+        localStorage.setItem('phantom-macros', JSON.stringify(updated));
+      } catch {}
+      sound.ack();
+      showToast(`Macro "${macro.name}" saved.`);
+    } catch (err) {
+      showToast(`Macro error: ${err.message}`);
+    }
+  };
+
+  const handleDeleteMacro = (macroName) => {
+    sound.click();
+    const updated = macros.filter((m) => m.name !== macroName);
+    setMacros(updated);
+    try {
+      localStorage.setItem('phantom-macros', JSON.stringify(updated));
+    } catch {}
+    showToast(`Macro "${macroName}" removed.`);
+  };
+
+  // Button mapping reassign helper
+  const handleUpdateBtnMapping = (btnId, actionId) => {
+    sound.click();
+    const updated = buttonMappings.map((btn) => (btn.id === btnId ? { ...btn, defaultAction: actionId } : btn));
+    setButtonMappings(updated);
+    try {
+      localStorage.setItem('phantom-button-mappings', JSON.stringify(updated));
+    } catch {}
+    showToast(`Updated ${btnId} mapping in local profile.`);
   };
 
   // View Transitions
@@ -372,7 +1022,7 @@ export function App() {
   // Check URL hash on initial load
   useEffect(() => {
     const hash = window.location.hash.replace('#', '');
-    if (['overview', 'lighting', 'performance', 'buttons', 'macros', 'about'].includes(hash)) {
+    if (['overview', 'lighting', 'performance', 'buttons', 'macros', 'profiles', 'about'].includes(hash)) {
       setCurrentView('studio');
     }
   }, []);
@@ -399,6 +1049,7 @@ export function App() {
           onOpenLegal={() => setIsLegalOpen(true)}
           connected={connected}
           battery={battery}
+          batteryTelemetryStatus={batteryTelemetryStatus}
           activeEffect={selectedEffect}
           activeColor={activeColor}
         />
@@ -406,19 +1057,50 @@ export function App() {
         /* VIEW 2: PHANTOM DEVICE STUDIO COCKPIT */
         <StudioCockpit
           connected={connected}
+          controlConnected={connected || (wiredConnected && wiredControlReady) || (bluetoothHidConnected && bluetoothHidControlReady)}
+          controlMode={connected ? 'receiver' : wiredConnected && wiredControlReady ? 'wired' : bluetoothHidConnected && bluetoothHidControlReady ? 'bluetooth' : 'none'}
           onConnectToggle={connected ? disconnectDevice : connectDevice}
+          wiredConnected={wiredConnected}
+          onConnectWired={connectWiredDevice}
+          onDisconnectWired={disconnectWiredDevice}
+          bluetoothConnected={bluetoothConnected}
+          onConnectBluetooth={connectBluetoothBattery}
+          onDisconnectBluetooth={disconnectBluetoothBattery}
+          bluetoothHidConnected={bluetoothHidConnected}
+          onConnectBluetoothHid={connectBluetoothHid}
+          onDisconnectBluetoothHid={disconnectBluetoothHid}
           onReturnToLanding={transitionToLanding}
-          onApplyEffect={applyEffectToHardware}
           battery={battery}
           chargeStatus={chargeStatus}
+          batteryTelemetryStatus={batteryTelemetryStatus}
+          // Performance State & Actions
           activeStage={activeStage}
           activeDpi={activeDpi}
           activePolling={activePolling}
           stages={stages}
-          onSelectStageDpi={(stageNum) => {
+          hardwareProfile={hardwareProfile}
+          isApplyingProfile={isApplyingProfile}
+          onChangeActiveStage={(stageNum) => {
             setActiveStage(stageNum);
             setActiveDpi(stages[stageNum - 1]);
           }}
+          onChangeStageDpi={(stageIdx, newDpi) => {
+            const nextStages = [...stages];
+            nextStages[stageIdx] = newDpi;
+            setStages(nextStages);
+            if (stageIdx + 1 === activeStage) {
+              setActiveDpi(newDpi);
+            }
+          }}
+          onSetAllStages={(dpiValue) => {
+            const nextStages = [dpiValue, dpiValue, dpiValue, dpiValue, dpiValue, dpiValue];
+            setStages(nextStages);
+            setActiveDpi(dpiValue);
+            showToast(`All 6 stages set to ${dpiValue} DPI. Click Apply to write to hardware.`);
+          }}
+          onChangePollingRate={setActivePolling}
+          onApplyProfileToHardware={() => applyProfileToHardware()}
+          // Lighting State & Actions
           selectedEffect={selectedEffect}
           onSelectEffect={(effectId) => {
             setSelectedEffect(effectId);
@@ -426,20 +1108,32 @@ export function App() {
             if (eff) setActiveColor(eff.hex);
           }}
           activeColor={activeColor}
-          onChangeColor={setActiveColor}
-          savedScenes={savedScenes}
-          onSaveScene={(newScene) => {
-            const updated = [...savedScenes, newScene];
-            setSavedScenes(updated);
+          onApplyEffect={applyEffectToHardware}
+          isApplyingLighting={isApplyingLighting}
+          // Button Mappings
+          buttonMappings={buttonMappings}
+          onUpdateBtnMapping={handleUpdateBtnMapping}
+          onResetBtnMappings={() => {
+            setButtonMappings(DEFAULT_BUTTON_MAPPINGS);
             try {
-              localStorage.setItem('phantom-scenes', JSON.stringify(updated));
+              localStorage.setItem('phantom-button-mappings', JSON.stringify(DEFAULT_BUTTON_MAPPINGS));
             } catch {}
-            showToast('Scene saved locally in browser storage.');
+            showToast('Reset button mappings to verified hardware defaults.');
           }}
-          onLoadScene={(sc) => {
-            setActiveColor(sc.color);
-            showToast(`Loaded ${sc.name}`);
-          }}
+          // Macros
+          macros={macros}
+          onSaveMacro={handleSaveMacro}
+          onDeleteMacro={handleDeleteMacro}
+          // Profiles & System Restore
+          profiles={profiles}
+          activeProfileId={activeProfileId}
+          onSaveProfile={handleSaveProfile}
+          onLoadProfile={handleLoadProfile}
+          onDeleteProfile={handleDeleteProfile}
+          onExportProfile={handleExportProfile}
+          onImportProfile={handleImportProfile}
+          onRestoreKnownGoodBaseline={restoreKnownGoodBaseline}
+          // Modals & Theme
           onOpenPatronage={() => setIsPatronageOpen(true)}
           theme={theme}
           onToggleTheme={toggleTheme}
@@ -457,7 +1151,7 @@ export function App() {
       />
 
       {/* HUD TOAST NOTIFICATION */}
-      <div className={`hud-toast ${toastMessage ? 'show' : ''}`}>
+      <div className={`hud-toast ${toastMessage ? 'show' : ''}`} role="status" aria-live="polite">
         {toastMessage}
       </div>
     </div>

@@ -87,13 +87,12 @@ def parse_active_profile(response: bytes) -> ActiveProfile:
     return profile
 
 
-def build_source_derived_profile_write(profile: ActiveProfile) -> bytes:
-    """Build the sibling-source 0x0F full-profile packet without sending it.
+def build_source_derived_profile_write(profile: ActiveProfile, base_report: bytes | None = None) -> bytes:
+    """Build the confirmed 0x0F full-profile packet.
 
-    The fixed bytes and tail are not fully explained or validated on the Acer
-    device. This function exists for offline inspection and packet-construction
-    tests only; callers must not transmit it until the Acer write structure is
-    established from a capture and hardware validation.
+    The header 55 0F AE 0A 2F 01 01 00 00 00 is confirmed in the WebHID capture.
+    When base_report is provided from a fresh 0x0E read, all trailing bytes (offsets 25..63)
+    are preserved exactly without synthesizing unknown values.
     """
     if profile.polling_level not in POLL_LEVEL_TO_HZ:
         raise ProtocolError(f"Unknown polling level: {profile.polling_level}")
@@ -101,11 +100,20 @@ def build_source_derived_profile_write(profile: ActiveProfile) -> bytes:
         raise ProtocolError(f"Invalid active DPI stage: {profile.active_stage}")
     if any(not 50 <= dpi <= 12000 for dpi in profile.dpi_stages):
         raise ProtocolError("DPI values must be between 50 and 12000")
-    packet = (
-        bytes.fromhex("55 0F AE 0A 2F 01 01 01 00 03")
-        + bytes((profile.polling_level, 0x06, profile.active_stage))
-        + struct.pack("<6H", *profile.dpi_stages)
-        + bytes(24)
-        + bytes.fromhex("FF 01 0A 00 FF")
-    )
-    return packet + bytes(REPORT_SIZE - len(packet))
+
+    packet = bytearray(REPORT_SIZE)
+    packet[:10] = bytes.fromhex("55 0F AE 0A 2F 01 01 00 00 00")
+    packet[10] = profile.polling_level
+    packet[11] = 0x06
+    packet[12] = profile.active_stage
+    struct.pack_into("<6H", packet, 13, *profile.dpi_stages)
+
+    if base_report is not None:
+        if len(base_report) != REPORT_SIZE:
+            raise ProtocolError(f"base_report must be {REPORT_SIZE} bytes")
+        packet[25:64] = base_report[25:64]
+    else:
+        # Default observed tail bytes from capture (24 zeros + FF 01 0A 01 FF 00 + zeros)
+        packet[49:55] = bytes.fromhex("FF 01 0A 01 FF 00")
+
+    return bytes(packet)

@@ -12,8 +12,9 @@
 - The user's confirmed receiver is YJX `A8A5:2255`, WebHID collection `FF01:0010` (USB interface 2 in the captured descriptor). The mouse is connected through its 2.4 GHz receiver.
 - The receiver filter must remain specific to this VID/PID/collection. Do not fall back to arbitrary HID devices or the standard mouse pointer collection.
 - Read-only model, serial, and DPI-profile queries are documented in `docs/protocol.md`. Battery and DPI-button reports were observed on this receiver.
-- The seven lighting mode IDs are user-observed on this mouse and mapped in `src/utils/webhid.js`.
-- Do not present custom color, ARGB zones, arbitrary DPI writes, button remapping, or macro upload as verified hardware control. Preserve unknown packet fields and report uncertainty in the UI/docs.
+- The seven lighting mode IDs are user-observed on this mouse and mapped in `src/utils/webhid.js` (Command `0x21`).
+- Profile writes use Command `0x0F` with the verified header `55 0F AE 0A 2F 01 01 00 00 00`, copy unedited baseline bytes (offsets 25..63) verbatim from a fresh `0x0E` query, await `AA 0F` acknowledgement, and run read-back verification.
+- Do not present custom color, ARGB zones, button remapping, or macro upload as verified hardware control. The mouse firmware exposes seven preset lighting modes only. Button mappings and macros are safely managed locally.
 - `tools/hid-capture.json`, `backups/`, and `logs/` can contain hardware identifiers. They are deliberately ignored; never add them to commits without explicit review.
 
 ## Useful locations
