@@ -9,7 +9,6 @@ import {
   DPI_MAX,
   DPI_STEP,
   clampDpi,
-  BUTTON_ACTIONS,
 } from '../utils/webhid';
 import { MouseHardwareVisual } from './MouseHardwareVisual';
 
@@ -51,10 +50,6 @@ export function StudioCockpit({
   activeColor,
   onApplyEffect,
   isApplyingLighting = false,
-  // Button Mappings
-  buttonMappings = [],
-  onUpdateBtnMapping,
-  onResetBtnMappings,
   // Macros
   macros = [],
   onSaveMacro,
@@ -74,8 +69,6 @@ export function StudioCockpit({
   onToggleTheme,
 }) {
   const [activeTab, setActiveTab] = useState('overview');
-  const [batteryView, setBatteryView] = useState('both');
-  const [highlightedButton, setHighlightedButton] = useState('M1');
   const [sfxActive, setSfxActive] = useState(true);
   const [hasPendingLighting, setHasPendingLighting] = useState(false);
 
@@ -93,7 +86,7 @@ export function StudioCockpit({
   const dockNavRef = useRef(null);
   const fileInputRef = useRef(null);
 
-  // Keyboard navigation [1] to [7]
+  // Keyboard navigation [1] to [6]
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)) return;
@@ -101,10 +94,9 @@ export function StudioCockpit({
         1: 'overview',
         2: 'lighting',
         3: 'performance',
-        4: 'buttons',
-        5: 'macros',
-        6: 'profiles',
-        7: 'about',
+        4: 'macros',
+        5: 'profiles',
+        6: 'about',
       };
       if (keyMap[e.key]) {
         switchTab(keyMap[e.key]);
@@ -237,7 +229,6 @@ export function StudioCockpit({
   const currentEffectObj = EFFECTS.find((e) => e.id === selectedEffect) || EFFECTS[0];
   const selectedDpi = stages[activeStage - 1] ?? activeDpi;
   const activeMacro = macros[selectedMacroIndex] || macros[0] || { name: 'New Macro', loopCount: 1, events: [] };
-  const selectedBtnObj = buttonMappings.find((b) => b.id === highlightedButton) || buttonMappings[0];
 
   return (
     <div className="studio-cockpit active">
@@ -264,7 +255,7 @@ export function StudioCockpit({
             </svg>
             <div className="studio-emblem-text">
               <span className="studio-title">PHANTOM STUDIO</span>
-              <span className="studio-version-tag">LAUNCH READY // A8A5:2255</span>
+              <span className="studio-version-tag">DEVICE READY</span>
             </div>
           </div>
         </div>
@@ -276,10 +267,9 @@ export function StudioCockpit({
             { id: 'overview', key: '1', label: 'OVERVIEW' },
             { id: 'lighting', key: '2', label: 'LIGHTING' },
             { id: 'performance', key: '3', label: 'PERFORMANCE' },
-            { id: 'buttons', key: '4', label: 'BUTTONS' },
-            { id: 'macros', key: '5', label: 'MACROS' },
-            { id: 'profiles', key: '6', label: 'PROFILES' },
-            { id: 'about', key: '7', label: 'SYSTEM' },
+            { id: 'macros', key: '4', label: 'MACROS' },
+            { id: 'profiles', key: '5', label: 'PROFILES' },
+            { id: 'about', key: '6', label: 'SYSTEM' },
           ].map((tab) => (
             <button
               key={tab.id}
@@ -409,7 +399,7 @@ export function StudioCockpit({
               </span>
             </div>
             <div className="telemetry-block align-right">
-              <span className="meta-label">FIRMWARE LINK</span>
+              <span className="meta-label">RECEIVER</span>
               <span className="meta-val mono">
                 {connected ? `Receiver ${activePolling}Hz` : 'Receiver not connected'}
               </span>
@@ -424,12 +414,6 @@ export function StudioCockpit({
               activeDpi={selectedDpi}
               activePolling={activePolling}
               battery={battery}
-              highlightedButton={highlightedButton}
-              onButtonClick={(btn) => {
-                sound.click();
-                setHighlightedButton(btn);
-                if (activeTab !== 'buttons') switchTab('buttons');
-              }}
             />
           </div>
 
@@ -458,9 +442,9 @@ export function StudioCockpit({
               <section className="page active" aria-labelledby="heading-overview">
                 <div className="page-heading">
                   <div>
-                    <p className="eyebrow">TACTICAL TELEMETRY</p>
+                    <p className="eyebrow">DEVICE OVERVIEW</p>
                     <h1 id="heading-overview">PHANTOM X12 COCKPIT</h1>
-                    <p className="subheading">Direct bidirectional telemetry streamed from the 2.4&nbsp;GHz receiver.</p>
+                    <p className="subheading">Manage your mouse sensitivity, lighting, and battery.</p>
                   </div>
                 </div>
 
@@ -481,86 +465,46 @@ export function StudioCockpit({
                     <div className="reading-head">
                       <div className="panel-header-title">
                         <span className="panel-icon-dot"></span>
-                        <h2 className="panel-title">CHASSIS POWER ARRAY</h2>
-                      </div>
-                      <div className="battery-view-toggle">
-                        {['both', 'percent', 'bar'].map((mode) => (
-                          <button
-                            key={mode}
-                            type="button"
-                            className={batteryView === mode ? 'active' : ''}
-                            onClick={() => {
-                              sound.click();
-                              setBatteryView(mode);
-                            }}
-                          >
-                            {mode.toUpperCase()}
-                          </button>
-                        ))}
+                        <h2 className="panel-title">BATTERY</h2>
                       </div>
                     </div>
 
-                    {(batteryView === 'both' || batteryView === 'percent') && (
-                      <div className="battery-main-display">
-                        <div className="battery-numeric-readout">
-                          <strong>{battery !== null ? battery : '--'}</strong>
-                          <span>%</span>
-                        </div>
-                        <div className="battery-spec-meta">
-                          <span className="meta-item"><span className="k">VOLTAGE:</span> <span className="v">3.7V LI-ION</span></span>
-                          <span className="meta-item"><span className="k">STATE:</span> <span className="v">{chargeStatus}</span></span>
-                          <span className="meta-item">
-                            <span className="k">STATUS:</span>{' '}
-                            <span className="v">
-                              {batteryTelemetryStatus === 'live' && 'STREAMING LIVE'}
-                              {batteryTelemetryStatus === 'stale' && 'STALE (>45s)'}
-                              {batteryTelemetryStatus === 'waiting' && 'WAITING 0xD0'}
-                              {batteryTelemetryStatus === 'unavailable' && 'RECEIVER OFFLINE'}
-                            </span>
-                          </span>
-                        </div>
+                    <div className="battery-main-display">
+                      <div className="battery-numeric-readout">
+                        <strong>{battery !== null ? battery : '--'}</strong>
+                        <span>%</span>
                       </div>
-                    )}
+                      <div className="battery-spec-meta">
+                        <span className="meta-item"><span className="k">VOLTAGE:</span> <span className="v">3.7V LI-ION</span></span>
+                        <span className="meta-item"><span className="k">STATE:</span> <span className="v">{chargeStatus}</span></span>
+                      </div>
+                    </div>
 
-                    {(batteryView === 'both' || batteryView === 'bar') && (
-                      <div className="battery-cell-array">
-                        {Array.from({ length: 20 }).map((_, idx) => {
-                          const fillCount = battery !== null ? Math.round((battery / 100) * 20) : 0;
-                          const isFilled = idx < fillCount;
-                          const isDanger = battery !== null && battery <= 20;
-                          const isWarn = battery !== null && battery > 20 && battery <= 40;
-                          return (
-                            <div
-                              key={idx}
-                              className={`battery-cell ${isFilled ? 'filled' : ''} ${isDanger ? 'danger' : ''} ${isWarn ? 'warn' : ''}`}
-                            />
-                          );
-                        })}
-                      </div>
-                    )}
+                    <div className="battery-cell-array">
+                      {Array.from({ length: 20 }).map((_, idx) => {
+                        const fillCount = battery !== null ? Math.round((battery / 100) * 20) : 0;
+                        const isFilled = idx < fillCount;
+                        const isDanger = battery !== null && battery <= 20;
+                        const isWarn = battery !== null && battery > 20 && battery <= 40;
+                        return (
+                          <div
+                            key={idx}
+                            className={`battery-cell ${isFilled ? 'filled' : ''} ${isDanger ? 'danger' : ''} ${isWarn ? 'warn' : ''}`}
+                          />
+                        );
+                      })}
+                    </div>
 
                     <p className="panel-foot">
                       <span>
-                        {connected
-                          ? battery !== null
-                            ? 'Unsolicited 0xD0 streaming live'
-                            : 'Connected. Waiting for receiver battery report (0xD0)...'
-                          : wiredConnected
-                            ? battery !== null ? 'Wired battery telemetry live' : 'Wired connected; waiting for battery telemetry'
-                            : bluetoothHidConnected
-                              ? battery !== null ? 'Bluetooth HID battery telemetry live' : 'Bluetooth HID connected; waiting for battery telemetry'
-                              : bluetoothConnected
-                                ? battery !== null ? 'Bluetooth LE Battery Service streaming live' : 'Bluetooth connected; waiting for battery telemetry'
-                                : 'Connect the 2.4 GHz receiver, wired HID, or Bluetooth battery service'}
+                        {battery !== null
+                          ? batteryTelemetryStatus === 'stale' ? 'Last battery reading may be outdated' : 'Battery level is up to date'
+                          : connected || wiredConnected || bluetoothHidConnected || bluetoothConnected
+                            ? 'Waiting for battery data'
+                            : 'Connect the mouse to see battery level'}
                       </span>
                       {batteryTelemetryStatus === 'stale' && (
                         <span className="telemetry-badge-stale">STALE</span>
-                      )}
-                      {batteryTelemetryStatus === 'waiting' && (
-                        <span className="telemetry-badge-waiting">WAITING 0xD0</span>
-                      )}
-                      {batteryTelemetryStatus === 'live' && (
-                        <span className="mono-badge">STREAMING D0</span>
                       )}
                     </p>
                   </article>
@@ -580,10 +524,6 @@ export function StudioCockpit({
                         <strong>{selectedDpi.toLocaleString('en-US')}</strong>
                         <span className="unit">DPI</span>
                       </div>
-                      <div className="dpi-aux-meta">
-                        <span className="meta-label">OPTICAL TRACKER</span>
-                        <span className="meta-val">1:1 NATIVE HARDWARE ACCEL: OFF</span>
-                      </div>
                     </div>
 
                     {/* 6 Interlocking Hardware Paddles */}
@@ -601,10 +541,6 @@ export function StudioCockpit({
                       ))}
                     </div>
 
-                    <p className="panel-foot">
-                      <span>Instant hardware scrambler switch · CMD 0x0E</span>
-                      <span className="mono-badge">STAGE {activeStage}</span>
-                    </p>
                   </article>
 
                   {/* Module 3: Active Effect Telemetry Card */}
@@ -612,7 +548,7 @@ export function StudioCockpit({
                     <div className="reading-head">
                       <div className="panel-header-title">
                         <span className="panel-icon-dot"></span>
-                        <h2 className="panel-title">CHROMA MATRIX EFFECT</h2>
+                        <h2 className="panel-title">CURRENT LIGHTING</h2>
                       </div>
                       <button type="button" className="action-link-btn" onClick={() => switchTab('lighting')}>
                         OPEN LIGHTING STUDIO →
@@ -641,9 +577,9 @@ export function StudioCockpit({
               <section className="page active" aria-labelledby="heading-lighting">
                 <div className="page-heading">
                   <div>
-                    <p className="eyebrow">CHROMA MATRIX // HARDWARE MODES</p>
+                    <p className="eyebrow">LIGHTING</p>
                     <h1 id="heading-lighting">LIGHTING STUDIO</h1>
-                    <p className="subheading">Seven onboard modes decoded from physical device observation.</p>
+                    <p className="subheading">Choose a lighting mode for your mouse.</p>
                   </div>
                   <div className="aircraft-toggle-box">
                     <span className="toggle-label">ON-DEVICE LIGHTING</span>
@@ -659,11 +595,11 @@ export function StudioCockpit({
                   <article className="panel modes-panel">
                     <div className="section-heading inline">
                       <div>
-                        <p className="eyebrow">ONBOARD PRESETS</p>
-                        <h2>7 HARDWARE CHROMA MODES</h2>
+                        <p className="eyebrow">LIGHTING MODES</p>
+                        <h2>CHOOSE A MODE</h2>
                       </div>
                       <span className="mono-badge">
-                        {controlConnected ? controlMode === 'wired' ? 'Wired Hardware Transmit (0x21)' : controlMode === 'bluetooth' ? 'Bluetooth HID Transmit (0x21)' : 'Verified Hardware Transmit (0x21)' : 'Connect a control link to apply'}
+                        {controlConnected ? 'Mouse connected' : 'Connect the mouse to apply changes'}
                       </span>
                     </div>
 
@@ -676,7 +612,6 @@ export function StudioCockpit({
                           onClick={() => handleEffectSelect(eff.id)}
                         >
                           <div className="mode-card-top">
-                            <span className="mode-cmd">0x0{eff.cmd}</span>
                             <span
                               className={`mode-light-bar bar-${eff.name.split(' ')[1]?.toLowerCase() || 'aurora'}`}
                               style={{ background: eff.id === 6 ? '#1a1a1a' : undefined }}
@@ -691,12 +626,8 @@ export function StudioCockpit({
                     </div>
 
                     <div className="mode-footer-terminal">
-                      <div className="terminal-raw-payload">
-                        <span className="payload-label">REPORT 0x21 PAYLOAD:</span>
-                        <code className="payload-hex">55 21 00 00 03 00 00 00 00 00 0{selectedEffect} ...</code>
-                      </div>
                       <span className="mode-note-text">
-                        Selected: {currentEffectObj.name} · CMD 0x0{currentEffectObj.cmd}
+                        Selected: {currentEffectObj.name}
                       </span>
                       <button
                         type="button"
@@ -705,7 +636,7 @@ export function StudioCockpit({
                         onClick={handleApplyLightingClick}
                       >
                         <span className="transmit-icon">{isApplyingLighting ? '⏳' : '⚡'}</span>
-                        <span>{isApplyingLighting ? 'TRANSMITTING...' : 'TRANSMIT TO HARDWARE (APPLY)'}</span>
+                        <span>{isApplyingLighting ? 'APPLYING...' : 'APPLY TO MOUSE'}</span>
                       </button>
                     </div>
                   </article>
@@ -719,8 +650,8 @@ export function StudioCockpit({
               <section className="page active" aria-labelledby="heading-performance">
                 <div className="page-heading">
                   <div>
-                    <p className="eyebrow">SENSOR &amp; POLLING CALIBRATION</p>
-                    <h1 id="heading-performance">PERFORMANCE RACK</h1>
+                    <p className="eyebrow">SENSITIVITY &amp; POLLING</p>
+                    <h1 id="heading-performance">MOUSE SETTINGS</h1>
                     <p className="subheading">Six configurable sensitivity stages (200 to 12,000 DPI) and hardware polling rate calibration.</p>
                   </div>
                 </div>
@@ -732,7 +663,7 @@ export function StudioCockpit({
                       <span className="pending-pulse-dot" aria-hidden="true"></span>
                       <div>
                         <div className="pending-banner-title">PENDING HARDWARE EDITS DETECTED</div>
-                        <div className="pending-banner-copy">Sliders or polling rate have changed. Click "Transmit Profile to Hardware" to apply.</div>
+                        <div className="pending-banner-copy">Your mouse settings have changed. Apply them when you're ready.</div>
                       </div>
                     </div>
                     <button
@@ -750,11 +681,11 @@ export function StudioCockpit({
                   <article className="panel perf-panel">
                     <div className="section-heading inline">
                       <div>
-                        <p className="eyebrow">PRECISION TELEMETRY RACK</p>
-                        <h2>6-STAGE DPI EQUALIZER</h2>
+                        <p className="eyebrow">SENSITIVITY</p>
+                        <h2>DPI STAGES</h2>
                       </div>
                       <span className="mono-badge">
-                        {controlConnected ? controlMode === 'wired' ? 'Wired Profile (0x0E / 0x0F)' : controlMode === 'bluetooth' ? 'Bluetooth HID Profile (0x0E / 0x0F)' : 'Verified Read/Write (0x0E / 0x0F)' : 'Connect a control link to apply'}
+                        {controlConnected ? 'Mouse connected' : 'Connect the mouse to apply changes'}
                       </span>
                     </div>
 
@@ -818,7 +749,7 @@ export function StudioCockpit({
 
                     <div className="poll-calibration-deck">
                       <div className="range-label">
-                        <span>RECEIVER POLLING FREQUENCY</span>
+                          <span>POLLING RATE</span>
                         <b className="mono">{activePolling} Hz</b>
                       </div>
 
@@ -854,8 +785,8 @@ export function StudioCockpit({
                           <span className="transmit-icon">{isApplyingProfile ? '⏳' : '⚡'}</span>
                           <span>
                             {isApplyingProfile
-                              ? 'TRANSMITTING & VERIFYING...'
-                              : 'TRANSMIT PROFILE TO HARDWARE (APPLY)'}
+                              ? 'APPLYING...'
+                              : 'APPLY TO MOUSE'}
                           </span>
                         </button>
                       </div>
@@ -887,100 +818,7 @@ export function StudioCockpit({
               </section>
             )}
 
-            {/* TAB 4: BUTTONS */}
-            {activeTab === 'buttons' && (
-              <section className="page active" aria-labelledby="heading-buttons">
-                <div className="page-heading">
-                  <div>
-                    <p className="eyebrow">HARDWARE SWITCH MAPPING // PROTOCOL STUDIO</p>
-                    <h1 id="heading-buttons">BUTTON REMAPPING</h1>
-                    <p className="subheading">Physical microswitch blueprint and decoded packet semantics.</p>
-                  </div>
-                </div>
-
-                <div className="split-layout-tactical">
-                  <article className="panel blueprint-panel">
-                    <div className="flex items-center justify-between mb-2">
-                      <div>
-                        <p className="eyebrow">PHYSICAL SWITCH BLUEPRINT</p>
-                        <h2>PHANTOM X12 SWITCH MATRIX (M1 - M6 &amp; WHEEL)</h2>
-                      </div>
-                      <button
-                        type="button"
-                        className="button button-secondary text-xs"
-                        onClick={onResetBtnMappings}
-                      >
-                        RESTORE DEFAULTS
-                      </button>
-                    </div>
-
-                    <div className="button-blueprint-visual">
-                      {buttonMappings.map((btn) => (
-                        <div
-                          key={btn.id}
-                          className={`button-chip ${highlightedButton === btn.id ? 'selected' : ''}`}
-                          onMouseEnter={() => setHighlightedButton(btn.id)}
-                          onClick={() => {
-                            sound.click();
-                            setHighlightedButton(btn.id);
-                          }}
-                        >
-                          <span className="btn-num">{btn.id}</span>
-                          <span className="btn-name">{btn.name}</span>
-                          <span className="btn-status">
-                            {BUTTON_ACTIONS.find((a) => a.id === btn.defaultAction)?.label || btn.label}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* Selected Button Editor Card */}
-                    {selectedBtnObj && (
-                      <div className="btn-editor-card">
-                        <div className="btn-editor-head">
-                          <span className="btn-editor-title">
-                            {selectedBtnObj.id}: {selectedBtnObj.name}
-                          </span>
-                          <span className="mono text-xs text-volt">
-                            CODE: {selectedBtnObj.code.map((c) => c.toString(16).padStart(2, '0').toUpperCase()).join(' ')}
-                          </span>
-                        </div>
-
-                        <div className="btn-editor-grid">
-                          <div>
-                            <label className="control-label" htmlFor="btn-action-select">ASSIGNED ACTION</label>
-                            <select
-                              id="btn-action-select"
-                              className="tactical-select"
-                              value={selectedBtnObj.defaultAction}
-                              onChange={(e) => onUpdateBtnMapping(selectedBtnObj.id, e.target.value)}
-                            >
-                              {BUTTON_ACTIONS.map((act) => (
-                                <option key={act.id} value={act.id}>{act.label}</option>
-                              ))}
-                            </select>
-                          </div>
-                          <div>
-                            <label className="control-label">HARDWARE STATUS</label>
-                            <div className="text-xs text-muted mt-2">
-                              Default mapping table decoded from captured <code>0x09</code> packets.
-                            </div>
-                          </div>
-                        </div>
-
-                        <p className="hardware-note">
-                          <span aria-hidden="true">ⓘ</span> 
-                          Custom button assignments are stored safely in your local profile. The OEM configurator capture revealed only repeated default frames; custom on-device EEPROM remapping writes are gated to protect physical switch routing.
-                        </p>
-                      </div>
-                    )}
-                  </article>
-
-                </div>
-              </section>
-            )}
-
-            {/* TAB 5: MACROS */}
+            {/* TAB 4: MACROS */}
             {activeTab === 'macros' && (
               <section className="page active" aria-labelledby="heading-macros">
                 <div className="page-heading">
@@ -1193,15 +1031,15 @@ export function StudioCockpit({
                     </div>
 
                     <p className="hardware-note mt-4">
-                      <span aria-hidden="true">ⓘ</span> 
-                      Browser sandbox boundaries prevent direct injection of synthetic OS keystrokes into other desktop apps without a native background daemon or on-device microcode. Onboard EEPROM chunk upload (<code>0x0D</code> / <code>0x10</code>) is in active protocol verification.
+                      <span aria-hidden="true">ⓘ</span>
+                      Macros are saved in your profile. This browser app cannot play them in other applications.
                     </p>
                   </div>
                 </div>
               </section>
             )}
 
-            {/* TAB 6: PROFILES & RECOVERY */}
+            {/* TAB 5: PROFILES */}
             {activeTab === 'profiles' && (
               <section className="page active" aria-labelledby="heading-profiles">
                 <div className="page-heading">
@@ -1311,49 +1149,15 @@ export function StudioCockpit({
                   </div>
                 </div>
 
-                {/* Storage Boundaries Clarification Table */}
+                {/* Settings storage summary */}
                 <div className="panel mb-6">
                   <div className="section-heading mb-3">
-                    <p className="eyebrow">STORAGE SPECIFICATION</p>
-                    <h2>STORAGE BOUNDARIES: HARDWARE VS BROWSER</h2>
+                    <p className="eyebrow">SETTINGS</p>
+                    <h2>WHERE SETTINGS ARE SAVED</h2>
                   </div>
-                  <div className="table-scroll">
-                    <table className="capability-table tactical-table">
-                      <thead>
-                        <tr>
-                          <th scope="col">SETTING CATEGORY</th>
-                          <th scope="col">STORED ON MOUSE (HARDWARE)</th>
-                          <th scope="col">STORED IN BROWSER STORAGE</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr>
-                          <th scope="row">DPI Stages (6 Values)</th>
-                          <td><span className="tag tag-ok">WRITTEN TO EEPROM (0x0F)</span></td>
-                          <td>Persisted in profile backups</td>
-                        </tr>
-                        <tr>
-                          <th scope="row">Active DPI Stage &amp; Polling Rate</th>
-                          <td><span className="tag tag-ok">WRITTEN TO EEPROM (0x0F)</span></td>
-                          <td>Persisted in profile backups</td>
-                        </tr>
-                        <tr>
-                          <th scope="row">Onboard Lighting Mode (0-6)</th>
-                          <td><span className="tag tag-ok">WRITTEN TO FIRMWARE (0x21)</span></td>
-                          <td>Persisted in profile backups</td>
-                        </tr>
-                        <tr>
-                          <th scope="row">Custom Shader Colors &amp; Scenes</th>
-                          <td><span className="tag tag-read">NOT SUPPORTED BY HW</span></td>
-                          <td><span className="tag tag-live">LOCALSTORAGE</span></td>
-                        </tr>
-                        <tr>
-                          <th scope="row">Macro Sequences &amp; Button Remapping</th>
-                          <td><span className="tag tag-read">LOCKED PENDING AUDIT</span></td>
-                          <td><span className="tag tag-live">LOCALSTORAGE</span></td>
-                        </tr>
-                      </tbody>
-                    </table>
+                  <div className="settings-storage-copy">
+                    <p><strong>Mouse:</strong> sensitivity stages, polling rate, and lighting mode.</p>
+                    <p><strong>This browser:</strong> saved profiles and macros.</p>
                   </div>
                 </div>
 
@@ -1361,23 +1165,23 @@ export function StudioCockpit({
                 <div className="system-restore-card">
                   <div className="restore-card-head">
                     <span className="text-xl">🛡️</span>
-                    <h3>RESTORE KNOWN-GOOD HARDWARE BASELINE</h3>
+                    <h3>RESTORE DEFAULT SETTINGS</h3>
                   </div>
                   <p className="text-xs text-text-secondary mb-4">
-                    Safely restores the verified factory baseline settings: 1000 Hz polling rate, Active Stage 1, standard 6-stage DPI curve (1200, 2400, 3200, 4800, 6400, 12000), Aurora lighting mode, and standard switch mappings. Uses validated 0x0F and 0x21 packets with read-back verification without triggering unsafe vendor factory-reset commands.
+                    Restore the standard DPI stages, 1000 Hz polling, and Aurora lighting. When connected, the settings are applied to the mouse.
                   </p>
                   <button
                     type="button"
                     className="button button-primary"
                     onClick={onRestoreKnownGoodBaseline}
                   >
-                    APPLY KNOWN-GOOD BASELINE
+                    RESTORE DEFAULTS
                   </button>
                 </div>
               </section>
             )}
 
-            {/* TAB 7: ABOUT */}
+            {/* TAB 6: ABOUT */}
             {activeTab === 'about' && (
               <section className="page active" aria-labelledby="heading-about">
                 <div className="page-heading">
@@ -1392,17 +1196,17 @@ export function StudioCockpit({
                   <div className="spec-plate-inner">
                     <div className="spec-plate-header">
                       <div className="plate-title">ACER PHANTOM X12 // TACTICAL WEBHID SUITE</div>
-                      <div className="plate-serial">YJX 2.4 GHz RECEIVER · A8A5:2255</div>
+                      <div className="plate-serial">2.4 GHz wireless receiver</div>
                     </div>
 
                     <div className="plate-grid">
                       <div className="plate-cell">
-                        <span className="pk">HARDWARE VID:PID</span>
-                        <span className="pv mono">0xA8A5 : 0x2255</span>
+                        <span className="pk">CONNECTION</span>
+                        <span className="pv mono">2.4 GHz USB receiver</span>
                       </div>
                       <div className="plate-cell">
                         <span className="pk">TRANSPORT LAYER</span>
-                        <span className="pv mono">Chromium WebHID API / 64-byte chunks</span>
+                        <span className="pv mono">Chrome or Edge browser</span>
                       </div>
                       <div className="plate-cell">
                         <span className="pk">OPTICAL ENGINE</span>

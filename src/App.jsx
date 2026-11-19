@@ -10,7 +10,6 @@ import {
   POLLING,
   EFFECTS,
   DEFAULT_PROFILE,
-  DEFAULT_BUTTON_MAPPINGS,
   queryDevice,
   buildLightingPacket,
   writeProfileToHardware,
@@ -72,9 +71,6 @@ export function App() {
   const [selectedEffect, setSelectedEffect] = useState(0);
   const [activeColor, setActiveColor] = useState('#A3FF12');
   const [isApplyingLighting, setIsApplyingLighting] = useState(false);
-
-  // Button mapping state
-  const [buttonMappings, setButtonMappings] = useState(DEFAULT_BUTTON_MAPPINGS);
 
   // Profiles and macros state
   const [profiles, setProfiles] = useState(INITIAL_PROFILES);
@@ -152,9 +148,6 @@ export function App() {
 
       const storedMacros = localStorage.getItem('phantom-macros');
       if (storedMacros) setMacros(JSON.parse(storedMacros));
-
-      const storedButtons = localStorage.getItem('phantom-button-mappings');
-      if (storedButtons) setButtonMappings(JSON.parse(storedButtons));
 
       const storedTheme = localStorage.getItem('phantom-theme');
       if (storedTheme) {
@@ -460,7 +453,7 @@ export function App() {
 
       sound.boot();
       triggerEdgeFlash();
-      showToast('Receiver profile loaded (2.4 GHz Link active). Waiting for battery telemetry.');
+      showToast('Receiver connected. Waiting for battery data.');
     } catch (err) {
       console.warn('[Phantom WebHID] Notice during loadHardwareState:', err);
     }
@@ -728,7 +721,7 @@ export function App() {
       setBattery(null);
       handleBatteryUpdate(initialLevel, null, 'bluetooth');
       if (currentView !== 'studio') transitionToStudio();
-      showToast('Connected to ACM X12 Bluetooth battery telemetry (read only).');
+      showToast('Bluetooth battery connected.');
     } catch (error) {
       if (requestedDevice && bluetoothDisconnectListenerRef.current) {
         requestedDevice.removeEventListener('gattserverdisconnected', bluetoothDisconnectListenerRef.current);
@@ -781,7 +774,7 @@ export function App() {
 
       triggerEdgeFlash();
       sound.ack();
-      showToast(`Applied to hardware: ${eff.name} (Command 0x0${eff.id})`);
+      showToast(`Applied ${eff.name} lighting mode.`);
     } catch (error) {
       console.error('[Phantom WebHID] applyEffectToHardware error:', error);
       showToast(`Write error: ${error.message}`);
@@ -821,7 +814,7 @@ export function App() {
 
       triggerEdgeFlash();
       sound.ack();
-      showToast(`Hardware profile updated & verified: Stage ${verified.activeStage} (${verified.stages[verified.activeStage - 1]} DPI) @ ${verified.pollingRate}Hz`);
+      showToast(`Mouse settings updated: Stage ${verified.activeStage}, ${verified.stages[verified.activeStage - 1]} DPI, ${verified.pollingRate} Hz`);
     } catch (error) {
       console.error('[Phantom WebHID] applyProfileToHardware error:', error);
       sound.toggle();
@@ -844,17 +837,12 @@ export function App() {
     const eff = EFFECTS.find((e) => e.id === baseline.selectedEffect);
     if (eff) setActiveColor(eff.hex);
 
-    setButtonMappings(DEFAULT_BUTTON_MAPPINGS);
-    try {
-      localStorage.setItem('phantom-button-mappings', JSON.stringify(DEFAULT_BUTTON_MAPPINGS));
-    } catch {}
-
     if (getControlConnection()?.device.opened) {
       await applyProfileToHardware(baseline);
       await applyEffectToHardware(baseline.selectedEffect);
-      showToast('Restored and applied verified baseline profile to mouse.');
+      showToast('Default settings restored on the mouse.');
     } else {
-      showToast('Restored local baseline settings. Connect the receiver or verified wired link to transmit.');
+      showToast('Default settings restored in this browser. Connect the mouse to apply them.');
     }
   };
 
@@ -990,17 +978,6 @@ export function App() {
     showToast(`Macro "${macroName}" removed.`);
   };
 
-  // Button mapping reassign helper
-  const handleUpdateBtnMapping = (btnId, actionId) => {
-    sound.click();
-    const updated = buttonMappings.map((btn) => (btn.id === btnId ? { ...btn, defaultAction: actionId } : btn));
-    setButtonMappings(updated);
-    try {
-      localStorage.setItem('phantom-button-mappings', JSON.stringify(updated));
-    } catch {}
-    showToast(`Updated ${btnId} mapping in local profile.`);
-  };
-
   // View Transitions
   const transitionToStudio = () => {
     sound.boot();
@@ -1022,7 +999,7 @@ export function App() {
   // Check URL hash on initial load
   useEffect(() => {
     const hash = window.location.hash.replace('#', '');
-    if (['overview', 'lighting', 'performance', 'buttons', 'macros', 'profiles', 'about'].includes(hash)) {
+    if (['overview', 'lighting', 'performance', 'macros', 'profiles', 'about'].includes(hash)) {
       setCurrentView('studio');
     }
   }, []);
@@ -1110,16 +1087,6 @@ export function App() {
           activeColor={activeColor}
           onApplyEffect={applyEffectToHardware}
           isApplyingLighting={isApplyingLighting}
-          // Button Mappings
-          buttonMappings={buttonMappings}
-          onUpdateBtnMapping={handleUpdateBtnMapping}
-          onResetBtnMappings={() => {
-            setButtonMappings(DEFAULT_BUTTON_MAPPINGS);
-            try {
-              localStorage.setItem('phantom-button-mappings', JSON.stringify(DEFAULT_BUTTON_MAPPINGS));
-            } catch {}
-            showToast('Reset button mappings to verified hardware defaults.');
-          }}
           // Macros
           macros={macros}
           onSaveMacro={handleSaveMacro}

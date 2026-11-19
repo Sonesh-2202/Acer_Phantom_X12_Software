@@ -178,7 +178,7 @@ export function LandingPage({
               <svg className="chip-icon" viewBox="0 0 12 12"><circle cx="6" cy="6" r="4" fill="currentColor"/></svg>
               FLAGSHIP HARDWARE // REVERSE-ENGINEERED
             </span>
-            <span className="hud-chip">VID: 0xA8A5 // PID: 0x2255</span>
+            <span className="hud-chip">YJX 2.4 GHz RECEIVER</span>
             <span className="hud-chip">2.4 GHz RECEIVER</span>
           </div>
 
@@ -333,12 +333,11 @@ export function LandingPage({
                 <div className="card-num">01 // TELEMETRY</div>
                 <h3 className="card-title">2.4 GHz Receiver Link</h3>
                 <p className="card-desc">
-                  Direct receiver communication via the confirmed YJX WebHID collection <code>VID: 0xA8A5 / PID: 0x2255</code>.
-                  The receiver profile currently reports 1000 Hz. End-to-end response latency has not been independently measured.
+                  Connect to the YJX 2.4 GHz receiver to view and adjust the mouse profile. The receiver currently reports a 1000 Hz polling rate.
                 </p>
                 <div className="card-meta">
-                  <span className="mono-badge">CMD 0x03 / 0x0E</span>
-                  <span className="mono-badge">64-BYTE PACKET</span>
+                  <span className="mono-badge">2.4 GHz WIRELESS</span>
+                  <span className="mono-badge">1000 Hz POLLING</span>
                 </div>
               </div>
 
@@ -430,10 +429,10 @@ export function LandingPage({
               <div className="bento-spotlight"></div>
               <div className="bento-header">
                 <span className="bento-tag">REVERSE-ENGINEERING</span>
-                <span className="bento-stat volt-text">VERIFIED &amp; AUDITED</span>
+                <span className="bento-stat volt-text">RECEIVER SUPPORT</span>
               </div>
-              <h4 className="bento-title">Open Protocol Transparency</h4>
-              <p className="bento-text">The app limits device selection to the confirmed vendor collection and avoids unverified profile writes.</p>
+              <h4 className="bento-title">Device Compatibility</h4>
+              <p className="bento-text">Connects to the YJX 2.4 GHz receiver and supports the mouse settings available through it.</p>
               <div className="protocol-bar-wrap">
                 <div className="protocol-bar-fill" style={{ width: '78%' }}></div>
                 <div className="protocol-bar-labels">
@@ -488,10 +487,10 @@ export function LandingPage({
                   Many gaming peripherals ship with opaque, bloat-laden utilities—often poorly translated, tracking user telemetry, or requiring background memory footprints exceeding modern text editors.
                 </p>
                 <p>
-                  <strong>Phantom Device Studio</strong> was created by studying the YJX 2.4 GHz receiver used with the Acer Phantom X12 (<code>VID: 0xA8A5 / PID: 0x2255</code>). The app reads the observed receiver profile and battery reports and exposes the user-verified onboard lighting modes through browser-native WebHID.
+                  <strong>Phantom Device Studio</strong> works with the YJX 2.4 GHz receiver used with the Acer Phantom X12. It manages sensitivity, polling rate, battery status, and the mouse’s built-in lighting modes.
                 </p>
                 <p>
-                  Your support directly accelerates decoding the remaining unmapped packets for on-device button remapping and macro chunks!
+                  Your support helps improve device compatibility and test future features.
                 </p>
               </div>
 

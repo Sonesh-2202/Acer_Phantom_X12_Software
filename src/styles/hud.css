@@ -917,6 +917,13 @@ html.lenis, html.lenis body {
 .protocol-bar-wrap {
   margin-top: 20px;
 }
+.settings-storage-copy {
+  display: grid;
+  gap: 8px;
+  color: var(--text-secondary);
+}
+.settings-storage-copy p { margin: 0; }
+.settings-storage-copy strong { color: var(--text-primary); }
 .protocol-bar-fill {
   height: 6px;
   border-radius: 3px;
@@ -1624,7 +1631,7 @@ html.lenis, html.lenis body {
   user-select: none;
 }
 .mouse-hardware-overlay {
-  pointer-events: auto;
+  pointer-events: none;
 }
 .chassis-render {
   width: 100%;
@@ -1658,12 +1665,6 @@ html.lenis, html.lenis body {
   fill: none;
 }
 
-.svg-button-target {
-  fill: transparent;
-  stroke: transparent;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
 .hud-callout {
   position: absolute;
   z-index: 10;
@@ -1902,29 +1903,6 @@ html.lenis, html.lenis body {
   box-shadow: 0 0 6px var(--danger-dim);
 }
 
-.battery-view-toggle {
-  display: flex;
-  gap: 2px;
-  background: rgba(0, 0, 0, 0.3);
-  padding: 2px;
-  border-radius: 4px;
-}
-.battery-view-toggle button {
-  background: none;
-  border: none;
-  color: var(--text-muted);
-  font-family: var(--font-mono);
-  font-size: 0.68rem;
-  padding: 3px 8px;
-  border-radius: 3px;
-  cursor: pointer;
-}
-.battery-view-toggle button.active {
-  background: var(--volt-dim);
-  color: var(--volt);
-  font-weight: 700;
-}
-
 .panel-foot {
   display: flex;
   justify-content: space-between;
@@ -1957,19 +1935,6 @@ html.lenis, html.lenis body {
   font-weight: 700;
   color: var(--volt);
 }
-.dpi-aux-meta {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 4px;
-  max-width: 52%;
-  font-family: var(--font-mono);
-}
-.dpi-aux-meta .meta-val {
-  text-align: right;
-  line-height: 1.35;
-}
-
 .dpi-paddle-rack {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
@@ -2137,15 +2102,6 @@ html.lenis, html.lenis body {
   align-items: center;
   margin-bottom: 10px;
 }
-.mode-cmd {
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
-  color: var(--text-muted);
-}
-.mode-card.selected .mode-cmd {
-  color: var(--volt);
-}
-
 .mode-light-bar {
   width: 48px;
   height: 6px;
@@ -2201,17 +2157,6 @@ html.lenis, html.lenis body {
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-}
-.terminal-raw-payload {
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-}
-.payload-label {
-  color: var(--text-muted);
-  margin-right: 6px;
-}
-.payload-hex {
-  color: var(--volt);
 }
 .mode-note-text {
   font-family: var(--font-mono);
@@ -2835,18 +2780,6 @@ html.lenis, html.lenis body {
   letter-spacing: 0.05em;
 }
 
-.telemetry-badge-waiting {
-  background: rgba(69, 232, 255, 0.12);
-  border: 1px solid #45E8FF;
-  color: #45E8FF;
-  font-family: var(--font-mono);
-  font-size: 0.65rem;
-  font-weight: 700;
-  padding: 2px 8px;
-  border-radius: 3px;
-  text-transform: uppercase;
-}
-
 /* Pending Hardware Changes Banner */
 .pending-hardware-banner {
   display: flex;
@@ -3243,7 +3176,6 @@ html.lenis, html.lenis body {
   color: var(--text-primary) !important;
 }
 [data-theme="light"] .control-deck-scroller .battery-cell-array,
-[data-theme="light"] .control-deck-scroller .battery-view-toggle,
 [data-theme="light"] .control-deck-scroller .macro-recorder-deck {
   background: #E9EDF2;
   border-color: var(--panel-border);

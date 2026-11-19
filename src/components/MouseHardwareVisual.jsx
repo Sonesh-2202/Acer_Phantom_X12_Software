@@ -6,8 +6,6 @@ export function MouseHardwareVisual({
   activeDpi = 1200,
   activePolling = 1000,
   battery = 59,
-  highlightedButton = null,
-  onButtonClick = null,
   showCallouts = true,
   className = '',
 }) {
@@ -36,7 +34,7 @@ export function MouseHardwareVisual({
           height="1234"
         />
 
-        {/* Interactive SVG Overlay Mapped to Cutouts */}
+        {/* Lighting overlay */}
         <svg
           viewBox="0 0 720 1234"
           className="mouse-hardware-overlay"
@@ -117,31 +115,6 @@ export function MouseHardwareVisual({
             />
           </g>
 
-          {/* Interactive Button Click Targets */}
-          {/* M1: Left Click */}
-          <path
-            d="M190 120 Q 320 100 350 220 L 330 400 L 170 380 Z"
-            className={`svg-button-target ${highlightedButton === 'M1' ? 'highlighted' : ''}`}
-            onClick={() => onButtonClick && onButtonClick('M1')}
-          />
-          {/* M2: Right Click */}
-          <path
-            d="M530 120 Q 400 100 370 220 L 390 400 L 550 380 Z"
-            className={`svg-button-target ${highlightedButton === 'M2' ? 'highlighted' : ''}`}
-            onClick={() => onButtonClick && onButtonClick('M2')}
-          />
-          {/* M4: Forward Side */}
-          <path
-            d="M124 510 L 142 510 L 142 555 L 124 555 Z"
-            className={`svg-button-target ${highlightedButton === 'M4' ? 'highlighted' : ''}`}
-            onClick={() => onButtonClick && onButtonClick('M4')}
-          />
-          {/* M5: Backward Side */}
-          <path
-            d="M124 565 L 142 565 L 142 610 L 124 610 Z"
-            className={`svg-button-target ${highlightedButton === 'M5' ? 'highlighted' : ''}`}
-            onClick={() => onButtonClick && onButtonClick('M5')}
-          />
         </svg>
 
         {/* Floating Telemetry Callout Badges */}
@@ -149,23 +122,23 @@ export function MouseHardwareVisual({
           <>
             <div className="hud-callout callout-top-left">
               <div className="callout-badge">
-                <span className="callout-label">SENSOR SENSITIVITY</span>
+                <span className="callout-label">SENSITIVITY</span>
                 <span className="callout-val">{activeDpi.toLocaleString('en-US')} DPI</span>
               </div>
             </div>
 
             <div className="hud-callout callout-top-right">
               <div className="callout-badge">
-                <span className="callout-label">REPORT RATE</span>
+                <span className="callout-label">POLLING RATE</span>
                 <span className="callout-val">{activePolling} HZ / {(1000 / activePolling).toFixed(1)} MS</span>
               </div>
             </div>
 
             <div className="hud-callout callout-bottom-left">
               <div className="callout-badge">
-                <span className="callout-label">CHASSIS POWER</span>
+                <span className="callout-label">BATTERY</span>
                 <span className="callout-val">
-                  {Number.isFinite(battery) ? `${battery}% BAT` : 'WAITING 0xD0'}
+                  {Number.isFinite(battery) ? `${battery}% BAT` : 'NO DATA'}
                 </span>
               </div>
             </div>
