@@ -63,7 +63,7 @@ export function StudioCockpit({
   theme,
   onToggleTheme,
 }) {
-  const [activeTab, setActiveTab] = useState('overview');
+  const [activeTab, setActiveTab] = useState(() => window.location.hash === '#about' ? 'about' : 'overview');
   const [sfxActive, setSfxActive] = useState(true);
   const [hasPendingLighting, setHasPendingLighting] = useState(false);
   const [upiCopied, setUpiCopied] = useState(false);

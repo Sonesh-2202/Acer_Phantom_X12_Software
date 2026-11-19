@@ -8,6 +8,7 @@ gsap.registerPlugin(ScrollTrigger);
 
 export function LandingPage({
   onLaunchStudio,
+  onSupportDeveloper,
   onConnectReceiver,
   onOpenLegal,
   connected,
@@ -82,6 +83,7 @@ export function LandingPage({
           <nav className="landing-nav" aria-label="Product Navigation">
             <a href="#hero-stage" className="landing-nav-link active" onClick={() => sound.click()}>LAUNCHPAD</a>
             <a href="#hardware-details" className="landing-nav-link" onClick={() => sound.click()}>DETAILS &amp; SPECS</a>
+            <button type="button" className="landing-nav-link landing-nav-button" onClick={() => { sound.click(); onSupportDeveloper(); }}>SUPPORT THE DEV</button>
           </nav>
 
           <div className="landing-header-actions">
@@ -152,6 +154,18 @@ export function LandingPage({
               <svg className="btn-arrow" viewBox="0 0 18 18" fill="none">
                 <path d="M4 9H14M14 9L9.5 4.5M14 9L9.5 13.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
+            </button>
+
+            <button
+              type="button"
+              className="btn-support-developer"
+              onClick={() => {
+                sound.click();
+                onSupportDeveloper();
+              }}
+            >
+              <span className="btn-support-label">SUPPORT THE DEV</span>
+              <span className="btn-support-subtext">HELP KEEP THIS PROJECT GOING</span>
             </button>
 
           </div>

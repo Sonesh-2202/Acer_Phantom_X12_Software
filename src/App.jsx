@@ -958,6 +958,14 @@ export function App() {
     setTimeout(() => ScrollTrigger.refresh(), 100);
   };
 
+  const transitionToSupport = () => {
+    sound.click();
+    setCurrentView('studio');
+    window.location.hash = '#about';
+    if (lenisRef.current) lenisRef.current.scrollTo(0, { immediate: true });
+    else window.scrollTo(0, 0);
+  };
+
   // Check URL hash on initial load
   useEffect(() => {
     const hash = window.location.hash.replace('#', '');
@@ -983,6 +991,7 @@ export function App() {
       {currentView === 'landing' ? (
         <LandingPage
           onLaunchStudio={transitionToStudio}
+          onSupportDeveloper={transitionToSupport}
           onConnectReceiver={connected ? disconnectDevice : connectDevice}
           onOpenLegal={() => setIsLegalOpen(true)}
           connected={connected}

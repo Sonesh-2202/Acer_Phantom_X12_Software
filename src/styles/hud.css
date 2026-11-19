@@ -267,6 +267,11 @@ html.lenis, html.lenis body {
 .landing-nav-link:hover, .landing-nav-link.active {
   color: var(--volt);
 }
+.landing-nav-button {
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
 
 .landing-header-actions {
   display: flex;
@@ -484,6 +489,35 @@ html.lenis, html.lenis body {
 }
 .btn-volt-primary:hover .btn-arrow {
   transform: translateX(4px);
+}
+.btn-support-developer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 14px 20px;
+  color: var(--text-primary);
+  background: rgba(255,255,255,0.025);
+  border: 1px solid var(--border-color);
+  cursor: pointer;
+  transition: border-color var(--transition-fast), color var(--transition-fast), transform var(--transition-fast);
+}
+.btn-support-developer:hover {
+  border-color: var(--volt);
+  color: var(--volt);
+  transform: translateY(-2px);
+}
+.btn-support-label {
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+.btn-support-subtext {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.06em;
+  color: var(--text-secondary);
 }
 
 .hero-quick-bar {
