@@ -3375,3 +3375,41 @@ html.lenis, html.lenis body {
   color: #000000;
   box-shadow: 0 0 12px rgba(69, 232, 255, 0.4);
 }
+
+/* Keep the hardware stage in the selected theme as well as the control deck. */
+[data-theme="light"] .hardware-sticky-stage {
+  background: #F3F5F7;
+  border-right-color: var(--panel-border-strong);
+  color: var(--text-primary);
+}
+[data-theme="light"] .stage-cad-cross,
+[data-theme="light"] .meta-label,
+[data-theme="light"] .callout-label {
+  color: var(--text-muted);
+}
+[data-theme="light"] .meta-val {
+  color: var(--text-primary);
+}
+[data-theme="light"] .meta-sub,
+[data-theme="light"] .callout-val {
+  color: var(--volt);
+}
+[data-theme="light"] .callout-badge {
+  background: rgba(255, 255, 255, 0.94);
+  border-color: var(--panel-border-strong);
+  box-shadow: 0 4px 14px rgba(16, 24, 40, 0.1);
+  backdrop-filter: blur(8px);
+}
+[data-theme="light"] .mouse-hardware-chassis {
+  filter: drop-shadow(0 18px 30px rgba(16, 24, 40, 0.22));
+}
+[data-theme="light"] .stage-footer-telemetry {
+  border-top-color: var(--panel-border-strong);
+}
+[data-theme="light"] .pipe-slot {
+  background: #E3E8EE;
+  border-color: var(--panel-border-strong);
+}
+[data-theme="light"] .hud-stage-dots span {
+  background: var(--text-dim);
+}
