@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
@@ -50,7 +50,7 @@ export function LandingPage({
         });
       }
 
-      // 3. Pinned Scrollytelling Breakdown
+      // 3. Pinned hardware image
       if (scrollyPinRef.current && scrollyVisualRef.current) {
         ScrollTrigger.create({
           trigger: scrollyPinRef.current,
@@ -60,43 +60,10 @@ export function LandingPage({
           scrub: true,
         });
 
-        // Staggered leader lines scrub
-        [1, 2, 3, 4].forEach((num) => {
-          const line = document.getElementById(`leader-line-${num}`);
-          const card = document.getElementById(`scrolly-card-${num}`);
-          if (line && card) {
-            gsap.to(line, {
-              strokeDashoffset: 0,
-              ease: 'none',
-              scrollTrigger: {
-                trigger: card,
-                start: 'top 65%',
-                end: 'bottom 55%',
-                scrub: true,
-              },
-            });
-          }
-        });
       }
     },
     { scope: containerRef }
   );
-
-  // Mouse spotlight gradient tracker
-  useEffect(() => {
-    const handleMouseMove = (e) => {
-      const cards = document.querySelectorAll('.bento-card');
-      cards.forEach((card) => {
-        const rect = card.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-        card.style.setProperty('--mouse-x', `${x}px`);
-        card.style.setProperty('--mouse-y', `${y}px`);
-      });
-    };
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, []);
 
   const copyGit = () => {
     sound.ack();
@@ -130,7 +97,6 @@ export function LandingPage({
             <a href="#hero-stage" className="landing-nav-link active" onClick={() => sound.click()}>LAUNCHPAD</a>
             <a href="#hardware-details" className="landing-nav-link" onClick={() => sound.click()}>DETAILS &amp; SPECS</a>
             <a href="#support-dev" className="landing-nav-link" onClick={() => sound.click()}>OPEN PROTOCOL</a>
-            <a href="#web-controls" className="landing-nav-link" onClick={() => sound.click()}>WEB CONTROLS</a>
           </nav>
 
           <div className="landing-header-actions">
@@ -173,15 +139,6 @@ export function LandingPage({
         </div>
 
         <div className="hero-content">
-          <div className="hero-badge-row">
-            <span className="hud-chip accent-volt">
-              <svg className="chip-icon" viewBox="0 0 12 12"><circle cx="6" cy="6" r="4" fill="currentColor"/></svg>
-              FLAGSHIP HARDWARE // REVERSE-ENGINEERED
-            </span>
-            <span className="hud-chip">YJX 2.4 GHz RECEIVER</span>
-            <span className="hud-chip">2.4 GHz RECEIVER</span>
-          </div>
-
           <h1 className="hero-title">
             <span className="hero-title-line">TACTICAL PRECISION.</span>
             <span className="hero-title-line volt-gradient-text">ZERO BLOATWARE.</span>
@@ -232,9 +189,6 @@ export function LandingPage({
               <span className="jump-arrow">↓</span> SCROLL FOR HARDWARE TELEMETRY
             </a>
             <span className="quick-sep">/</span>
-            <a href="#web-controls" className="quick-jump-link" onClick={() => sound.click()}>
-              JUMP TO WEB CONTROLS
-            </a>
           </div>
         </div>
 
@@ -255,30 +209,6 @@ export function LandingPage({
               height="1234"
             />
 
-            {/* Interactive SVG Glow */}
-            <svg className="hero-mouse-svg" viewBox="0 0 720 1234" aria-hidden="true">
-              <rect
-                x="338"
-                y="240"
-                width="44"
-                height="92"
-                rx="14"
-                className="svg-wheel-zone"
-                style={{ fill: activeColor, filter: `drop-shadow(0 0 10px ${activeColor})` }}
-              />
-              <rect x="344" y="414" width="32" height="42" rx="8" className="svg-dpi-zone" />
-              <g className="svg-palm-mesh">
-                <polygon points="360,760 376,770 376,790 360,800 344,790 344,770" className="svg-hex-cell" style={{ fill: activeColor }} />
-                <polygon points="320,785 336,795 336,815 320,825 304,815 304,795" className="svg-hex-cell" style={{ fill: activeColor }} />
-                <polygon points="400,785 416,795 416,815 400,825 384,815 384,795" className="svg-hex-cell" style={{ fill: activeColor }} />
-                <polygon points="360,830 376,840 376,860 360,870 344,860 344,840" className="svg-hex-cell" style={{ fill: activeColor }} />
-                <polygon points="280,810 296,820 296,840 280,850 264,840 264,820" className="svg-hex-cell" style={{ fill: activeColor }} />
-                <polygon points="440,810 456,820 456,840 440,850 424,840 424,820" className="svg-hex-cell" style={{ fill: activeColor }} />
-                <polygon points="320,875 336,885 336,905 320,915 304,905 304,885" className="svg-hex-cell" style={{ fill: activeColor }} />
-                <polygon points="400,875 416,885 416,905 400,915 384,905 384,885" className="svg-hex-cell" style={{ fill: activeColor }} />
-                <polygon points="360,920 376,930 376,950 360,960 344,950 344,930" className="svg-hex-cell" style={{ fill: activeColor }} />
-              </g>
-            </svg>
           </div>
 
           <div className="hero-spec-tag tag-top-right">
@@ -316,16 +246,6 @@ export function LandingPage({
                 alt="Acer Nitro Phantom X12 Hardware Breakdown"
                 className="scrolly-mouse-img"
               />
-              <svg className="scrolly-lines-svg" viewBox="0 0 720 1000" aria-hidden="true">
-                <path id="leader-line-1" className="leader-line" d="M360 280 L180 200 L60 200" />
-                <circle cx="360" cy="280" r="4" className="leader-anchor" />
-                <path id="leader-line-2" className="leader-line" d="M360 520 L540 440 L660 440" />
-                <circle cx="360" cy="520" r="4" className="leader-anchor" />
-                <path id="leader-line-3" className="leader-line" d="M360 840 L180 760 L60 760" />
-                <circle cx="360" cy="840" r="4" className="leader-anchor" />
-                <path id="leader-line-4" className="leader-line" d="M360 920 L540 840 L660 840" />
-                <circle cx="360" cy="920" r="4" className="leader-anchor" />
-              </svg>
             </div>
 
             <div className="scrolly-cards-stack">
@@ -379,89 +299,6 @@ export function LandingPage({
             </div>
           </div>
 
-          {/* Bento Grid */}
-          <div className="bento-grid-header">
-            <span className="section-eyebrow">TACTICAL SPEC MATRIX</span>
-            <h3 className="bento-heading">HARDWARE SPECIFICATIONS AT A GLANCE</h3>
-          </div>
-
-          <div className="tactical-bento-grid">
-            <div className="bento-card bento-span-2">
-              <div className="bento-spotlight"></div>
-              <div className="bento-header">
-                <span className="bento-tag">TRANSMISSION RATE</span>
-                <span className="bento-stat">PROFILE: 1000 HZ</span>
-              </div>
-              <h4 className="bento-title">Receiver Polling Profile</h4>
-              <p className="bento-text">The receiver reports 125, 250, 500, and 1000 Hz levels. The app currently reads this profile; hardware writes are not enabled.</p>
-              <div className="bento-wave-visual">
-                <svg viewBox="0 0 300 40" className="wave-svg">
-                  <path d="M0 20 Q 25 5, 50 20 T 100 20 T 150 20 T 200 20 T 250 20 T 300 20" className="wave-path" />
-                  <path d="M0 20 Q 25 35, 50 20 T 100 20 T 150 20 T 200 20 T 250 20 T 300 20" className="wave-path wave-alt" />
-                </svg>
-              </div>
-            </div>
-
-            <div className="bento-card">
-              <div className="bento-spotlight"></div>
-              <div className="bento-header">
-                <span className="bento-tag">INTERFACES</span>
-                <span className="bento-stat">2.4 GHZ</span>
-              </div>
-              <h4 className="bento-title">Confirmed Connection</h4>
-              <p className="bento-text">The YJX 2.4 GHz receiver is confirmed. Wired and Bluetooth control have not been tested.</p>
-              <div className="bento-pills-row">
-                <span className="micro-pill active">2.4 GHz</span>
-              </div>
-            </div>
-
-            <div className="bento-card">
-              <div className="bento-spotlight"></div>
-              <div className="bento-header">
-                <span className="bento-tag">STORAGE</span>
-              <span className="bento-stat">PROFILE READ</span>
-              </div>
-              <h4 className="bento-title">Receiver Profile</h4>
-              <p className="bento-text">DPI stages and polling rate are read from the receiver. Hardware profile writes are not enabled in this app.</p>
-            </div>
-
-            <div className="bento-card bento-span-2">
-              <div className="bento-spotlight"></div>
-              <div className="bento-header">
-                <span className="bento-tag">REVERSE-ENGINEERING</span>
-                <span className="bento-stat volt-text">RECEIVER SUPPORT</span>
-              </div>
-              <h4 className="bento-title">Device Compatibility</h4>
-              <p className="bento-text">Connects to the YJX 2.4 GHz receiver and supports the mouse settings available through it.</p>
-              <div className="protocol-bar-wrap">
-                <div className="protocol-bar-fill" style={{ width: '78%' }}></div>
-                <div className="protocol-bar-labels">
-                  <span>RECEIVER READS: DOCUMENTED</span>
-                  <span>PROFILE WRITES: NOT ENABLED</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="bento-card">
-              <div className="bento-spotlight"></div>
-              <div className="bento-header">
-                <span className="bento-tag">WEIGHT CLASS</span>
-              <span className="bento-stat">SPEC NOT VERIFIED</span>
-              </div>
-              <h4 className="bento-title">Mouse Hardware</h4>
-              <p className="bento-text">The control project focuses on the 2.4 GHz receiver protocol; chassis measurements are outside its verified scope.</p>
-            </div>
-
-            <div className="bento-card">
-              <div className="bento-spotlight"></div>
-              <div className="bento-header">
-                <span className="bento-tag">SWITCHES</span>
-              <span className="bento-stat">SPEC NOT VERIFIED</span>
-              </div>
-              <h4 className="bento-title">Switch Hardware</h4>
-              <p className="bento-text">Switch endurance and debounce specifications have not been verified for this unit.</p>
-            </div>
-          </div>
         </div>
       </section>
 
@@ -549,28 +386,6 @@ export function LandingPage({
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* SECTION 4: WEB APP ENTRY */}
-      <section id="web-controls" className="web-app-entry">
-        <div className="section-container">
-          <div className="zero-install-banner">
-            <div className="banner-badge">WEB APP</div>
-            <p className="banner-text">
-              The supported control app runs in Chrome or Edge. Connect the 2.4 GHz receiver, then open the studio.
-            </p>
-            <button
-              type="button"
-              className="inline-launch-btn"
-              onClick={() => {
-                sound.boot();
-                onLaunchStudio();
-              }}
-            >
-              OPEN STUDIO
-            </button>
           </div>
         </div>
       </section>

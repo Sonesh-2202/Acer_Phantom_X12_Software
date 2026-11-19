@@ -64,6 +64,8 @@ export function App() {
   const [activeDpi, setActiveDpi] = useState(1200);
   const [activePolling, setActivePolling] = useState(1000);
   const [stages, setStages] = useState([1200, 2400, 3200, 4800, 6400, 12000]);
+  const stagesRef = useRef(stages);
+  stagesRef.current = stages;
   const [hardwareProfile, setHardwareProfile] = useState(null);
   const [isApplyingProfile, setIsApplyingProfile] = useState(false);
 
@@ -239,16 +241,19 @@ export function App() {
       handleBatteryUpdate(parsed.level, parsed.charging, source);
     } else if (parsed.type === 'dpi_toggle') {
       if (!['receiver', 'wired', 'bluetoothHid'].includes(source)) return;
+      const stageDpi = stagesRef.current[parsed.stage - 1];
       if (parsed.stage >= 1 && parsed.stage <= stages.length) {
         setActiveStage(parsed.stage);
-        setActiveDpi(stages[parsed.stage - 1]);
+        setActiveDpi(stageDpi);
       }
       if (parsed.pollingRate) {
         setActivePolling(parsed.pollingRate);
       }
       triggerEdgeFlash();
       sound.ack();
-      showToast(`Hardware DPI Button Pressed: Stage ${parsed.stage} (${stages[parsed.stage - 1]} DPI)`);
+      showToast(stageDpi
+        ? `DPI changed to ${stageDpi.toLocaleString('en-US')} DPI`
+        : `DPI changed to stage ${parsed.stage}`);
     }
   };
 

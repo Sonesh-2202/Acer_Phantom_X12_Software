@@ -579,29 +579,6 @@ html.lenis, html.lenis body {
   object-fit: contain;
   display: block;
 }
-.hero-mouse-svg {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 3;
-}
-.svg-wheel-zone {
-  fill: var(--active-rgb-glow);
-  filter: drop-shadow(0 0 10px var(--active-rgb-glow));
-  opacity: 0.85;
-}
-.svg-dpi-zone {
-  fill: var(--volt);
-  filter: drop-shadow(0 0 6px var(--volt));
-  opacity: 0.9;
-}
-.svg-hex-cell {
-  fill: var(--active-rgb-glow);
-  opacity: 0.75;
-  filter: drop-shadow(0 0 8px var(--active-rgb-glow));
-}
 
 .hero-spec-tag {
   position: absolute;
@@ -714,26 +691,6 @@ html.lenis, html.lenis body {
   position: relative;
   z-index: 2;
   filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.9));
-}
-.scrolly-lines-svg {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 3;
-  pointer-events: none;
-}
-.leader-line {
-  fill: none;
-  stroke: var(--volt);
-  stroke-width: 1.5;
-  stroke-dasharray: 600;
-  stroke-dashoffset: 600;
-  opacity: 0.7;
-}
-.leader-anchor {
-  fill: var(--volt);
-  filter: drop-shadow(0 0 4px var(--volt));
 }
 
 .scrolly-cards-stack {
@@ -1114,47 +1071,6 @@ html.lenis, html.lenis body {
   font-size: 0.75rem;
   color: var(--volt);
   text-decoration: none;
-}
-
-/* WEB APP ENTRY */
-.web-app-entry {
-  position: relative;
-  z-index: 10;
-  padding: 100px 0;
-  border-top: 1px solid var(--panel-border);
-}
-.zero-install-banner {
-  background: rgba(163, 255, 18, 0.05);
-  border: 1px solid rgba(163, 255, 18, 0.2);
-  border-radius: 6px;
-  padding: 16px 24px;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  margin-bottom: 0;
-}
-.banner-badge {
-  font-family: var(--font-mono);
-  font-size: 0.68rem;
-  font-weight: 700;
-  background: var(--volt);
-  color: #060709;
-  padding: 4px 8px;
-  border-radius: 3px;
-  flex-shrink: 0;
-}
-.banner-text {
-  font-size: 0.92rem;
-  color: var(--text-secondary);
-}
-.inline-launch-btn {
-  background: none;
-  border: none;
-  color: var(--volt);
-  font-weight: 700;
-  text-decoration: underline;
-  cursor: pointer;
-  padding: 0 4px;
 }
 
 .landing-footer {
@@ -1617,8 +1533,7 @@ html.lenis, html.lenis body {
   flex: 0 1 auto;
   filter: drop-shadow(0 24px 40px rgba(0, 0, 0, 0.72));
 }
-.mouse-hardware-image,
-.mouse-hardware-overlay {
+.mouse-hardware-image {
   position: absolute;
   inset: 0;
   display: block;
@@ -1629,9 +1544,6 @@ html.lenis, html.lenis body {
 .mouse-hardware-image {
   pointer-events: none;
   user-select: none;
-}
-.mouse-hardware-overlay {
-  pointer-events: none;
 }
 .chassis-render {
   width: 100%;
