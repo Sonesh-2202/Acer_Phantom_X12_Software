@@ -765,15 +765,15 @@ export function StudioCockpit({
                 </div>
 
                 {/* Profile Controls Bar */}
-                <div className="panel mb-6">
-                  <div className="flex items-center justify-between flex-wrap gap-4">
-                    <div className="flex flex-wrap items-center gap-3">
+                <div className="panel profile-controls-panel">
+                  <div className="profile-controls-layout">
+                    <div className="profile-create-controls">
                       <input
                         type="text"
                         placeholder="New Profile Name..."
                         value={newProfileName}
                         onChange={(e) => setNewProfileName(e.target.value)}
-                        className="tactical-hex-input w-64 text-left"
+                        className="tactical-hex-input text-left profile-name-input"
                         aria-label="New Profile Name"
                       />
                       <button
@@ -790,7 +790,7 @@ export function StudioCockpit({
                       </button>
                     </div>
 
-                    <div className="flex items-center gap-2">
+                    <div className="profile-import-controls">
                       <input
                         type="file"
                         ref={fileInputRef}
@@ -864,8 +864,8 @@ export function StudioCockpit({
                 </div>
 
                 {/* Settings storage summary */}
-                <div className="panel mb-6">
-                  <div className="section-heading mb-3">
+                <div className="panel profile-storage-panel">
+                  <div className="profile-storage-heading">
                     <p className="eyebrow">SETTINGS</p>
                     <h2>WHERE SETTINGS ARE SAVED</h2>
                   </div>
