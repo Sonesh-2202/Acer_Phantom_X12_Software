@@ -1,100 +1,108 @@
-# Phantom Device Studio
+<p align="center">
+  <img src="public/favicon.svg" width="88" height="88" alt="Acer Phantom X12 icon">
+</p>
 
-Tactical WebHID driver suite and hardware configurator for the Acer Nitro Phantom X12 wireless gaming mouse and its confirmed YJX 2.4 GHz USB receiver (`A8A5:2255`).
+<h1 align="center">Acer Phantom X12</h1>
 
-The shipped application is a high-performance React + Vite WebHID control panel located in `src/`. GitHub Pages automatically deploys production builds from `dist/` via `.github/workflows/pages.yml`.
+<p align="center">
+  Browser-based controls for the Acer Nitro Phantom X12 wireless mouse.
+  <br>
+  Adjust DPI, polling rate, and built-in lighting presets from one clean interface.
+</p>
 
-Published deployment: [sonesh-2202.github.io/Acer_Phantom_X12_Software](https://sonesh-2202.github.io/Acer_Phantom_X12_Software/)
+<p align="center">
+  <a href="https://sonesh-2202.github.io/Acer_Phantom_X12_Software/">Open the app</a>
+  · <a href="https://sonesh2202.me">Sonesh's website</a>
+  · <a href="https://github.com/Sonesh-2202/Acer_Phantom_X12_Software/issues">Report an issue</a>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/React-19-149eca?logo=react&logoColor=white" alt="React 19">
+  <img src="https://img.shields.io/badge/Vite-8-646cff?logo=vite&logoColor=white" alt="Vite 8">
+  <img src="https://img.shields.io/badge/License-MIT-84cc16.svg" alt="MIT License">
+</p>
 
 ---
 
-## Quick start
+## What it does
 
-### Prerequisites
-- Node.js 22+ (tested up to Node 25) and npm.
-- Chromium-based browser supporting the [WebHID API](https://developer.mozilla.org/en-US/docs/Web/API/WebHID_API) (Google Chrome 89+ or Microsoft Edge 89+). Firefox and Safari do not support WebHID.
-- 2.4 GHz USB wireless receiver plugged in directly.
+- Reads the active DPI stage, six DPI values, and receiver polling rate.
+- Changes DPI stages and polling rate, then verifies the updated profile.
+- Applies the mouse's seven built-in lighting presets.
+- Displays battery and charging information when the receiver reports it.
+- Saves named profiles in the browser and supports profile import and export.
+- Shows live DPI, polling rate, and battery values beside the mouse image.
+- Includes dark and light themes.
 
-### Running locally
+The app is designed for the YJX 2.4 GHz USB receiver supplied with the mouse. Use a Chromium browser with WebHID support, such as Chrome or Edge.
 
-On Windows, double-click `dev.bat`, or run:
+## Get started
 
-```powershell
-npm install
+### Requirements
+
+- Node.js 22 or newer and npm.
+- Google Chrome or Microsoft Edge.
+- The mouse's 2.4 GHz USB receiver.
+- A secure context: localhost for development, or HTTPS for the hosted app.
+
+### Run locally
+
+```bash
+git clone https://github.com/Sonesh-2202/Acer_Phantom_X12_Software.git
+cd Acer_Phantom_X12_Software
+npm ci
 npm run dev
 ```
 
-Open `http://localhost:5173/` in Chrome or Edge. Click **Connect receiver** and choose the YJX receiver (`USB Receiver`, VID `0xA8A5`, PID `0x2255`).
+Open [http://localhost:5173](http://localhost:5173), select **Connect receiver**, and choose the YJX receiver in the browser prompt.
 
-### Running tests & building
+### Build and check
 
-```powershell
-# Run automated WebHID packet builder, parser, and validator tests
-npm test
-
-# Run Python protocol & serialization tests
-python -m pytest
-
-# Create production build for GitHub Pages
+```bash
 npm run build
+npm test
 ```
 
----
+## Hardware support
 
-## Hardware features & protocol implementation
+| Control | Status |
+| --- | --- |
+| Read six DPI stages and the active stage | Supported |
+| Set DPI stages and polling rate | Supported, with read-back verification |
+| Switch among the built-in lighting presets | Supported |
+| Read receiver battery and charging reports | Supported when data is available |
+| Reassign mouse buttons | Not available |
+| Set custom RGB colors or lighting zones | Not available |
 
-| Feature | Protocol Command | Hardware Status | Notes |
-|---|---|---|---|
-| **Identity & Version** | `55 03` | **Verified & Live** | Reads firmware identification string from receiver |
-| **Battery Telemetry** | Unsolicited `AA FA [0xD0]` | **Verified & Live** | Real streaming battery percentage & charge state; indicates live vs stale (>45s) |
-| **DPI Profile Read** | `55 0E` | **Verified & Live** | Reads active stage (1–6), polling rate (125–1000 Hz), and all 6 DPI values |
-| **DPI Profile Write** | `55 0F` | **Verified & Live** | Configures 6 stages (200–12,000 DPI) and polling rate; preserves raw tail bytes with read-back verification |
-| **Hardware DPI Button** | Unsolicited `AA FA AE [0x10]` | **Verified & Live** | Physical button events switch active stage instantly with audio and HUD visual flash |
-| **Lighting Effects** | `55 21 [MODE]` | **Verified & Live** | 7 onboard modes: Void (0), Aurora (1), Neon Bloom (2), Comet Rally (3), Orbit Bounce (4), Photon Sweep (5), Lumen Breath (6) |
-| **Custom Color Sculptor**| Local Shader | **Preview Only** | 60 FPS live shader preview and local scenes. Receiver firmware does not expose arbitrary ARGB color packets |
-| **Button Remapping** | Not available | **Unsupported** | The Studio does not offer button reassignment |
-| **System Restore** | `55 0F` / `55 21` | **Verified & Live** | Safe baseline reset (1000Hz, Stage 1, standard curve, Aurora) without risky OEM factory-reset commands |
+Profile changes are sent to the mouse when you apply them. Saved profiles and theme preferences are stored locally in the browser. The System page contains the developer's UPI QR code and payment ID.
 
-For technical byte offsets, captures, and reverse-engineering details, see [docs/protocol.md](docs/protocol.md).
+For packet layouts and evidence notes, see [docs/protocol.md](docs/protocol.md).
 
----
+## Project layout
 
-## Project structure
+```text
+src/
+  App.jsx                         App state and device connections
+  components/StudioCockpit.jsx    Device controls and profile management
+  components/MouseHardwareVisual.jsx  Mouse image and live readings
+  components/LandingPage.jsx      Product page and receiver connection
+  utils/webhid.js                 HID filters, parsers, and profile writes
+  styles/hud.css                  Interface styles
+public/
+  favicon.svg                     Browser tab icon
+  upi-qr.png                      UPI payment QR code
+  assets/                         Mouse images
+```
 
-- `src/App.jsx` — Core state machine, WebHID connection lifecycle, telemetry handlers, profile management.
-- `src/components/StudioCockpit.jsx` — Studio interface for Overview, Lighting, Performance, Profiles, and System settings.
-- `src/components/MouseHardwareVisual.jsx` — Mouse image with live DPI, polling rate, and battery labels.
-- `src/components/LandingPage.jsx` — Product page with a hardware overview and connection controls.
-- `src/utils/webhid.js` — WebHID receiver filters, report parsers, packet builders, bounds validation, and transmission helpers.
-- `src/styles/hud.css` — High-tech dark tactical design system with ambient glow and responsive layouts.
-- `tests/webhid.test.js` — Automated unit tests for all WebHID packet construction, bounds checking, and report decoding.
-- `core/`, `services/`, `tests/` — Companion Python protocol, profile, and macro test suites.
-- `tools/` — Read-only diagnostic scripts and passive WebHID capture helper (`tools/webhid_capture.js`).
-- `docs/protocol.md` — Protocol documentation and verified hardware evidence table.
+The GitHub Pages workflow builds and publishes the Vite app from `dist/`.
 
----
+## Privacy and safety
 
-## Connection requirements & troubleshooting
+- Device communication happens locally between the browser and the selected HID device.
+- The app does not send mouse data or analytics to an external server.
+- Profile writes preserve unedited bytes from a fresh hardware read and verify the result.
+- Button remapping and arbitrary lighting writes are not exposed as supported controls.
 
-1. **"WebHID needs a secure page"**: WebHID requires a secure context. The app works on `http://localhost:5173/` or any HTTPS domain (such as GitHub Pages). Plain network IPs (e.g. `http://192.168...`) are blocked by Chromium security policies.
-2. **"This browser does not expose WebHID"**: Use Google Chrome or Microsoft Edge. Firefox, Safari, and mobile browsers do not implement WebHID.
-3. **Device not appearing in picker**: Ensure the 2.4 GHz USB dongle is connected directly to your computer. The WebHID filter is specifically restricted to `VID 0xA8A5`, `PID 0x2255`, `usagePage 0xFF01`, `usage 0x0010` to avoid Windows permission errors with OS-protected pointer endpoints (`usagePage 0x0001`).
-4. **Battery shows "Waiting 0xD0"**: The receiver broadcasts battery telemetry periodically as unsolicited reports. The app waits for the first real report rather than showing hardcoded numbers.
-5. **Read-back verification error**: If a profile write is interrupted, the app verifies the hardware state with a read-back query and alerts you if any value does not match.
+## License
 
----
-
-## Privacy and data handling
-
-- **No external telemetry**: The application sends zero device data or analytics to any external server.
-- **Local storage**: Saved profiles and theme preferences are kept in your browser's local storage (`localStorage`).
-- **External assets**: Fonts are loaded from Google Fonts CDN (`fonts.googleapis.com`). All code and images are hosted directly from GitHub Pages or locally.
-- **Hardware safety**: Settings packets preserve unknown tail bytes from baseline reads. Arbitrary or unverified commands (such as vendor factory-reset writes) are strictly excluded.
-
----
-
-## License & disclaimer
-
-This project is licensed under the [MIT License](LICENSE).
-
-*Disclaimer*: Phantom Device Studio is an independent open-source utility developed for hardware tuning and accessibility. Acer, Nitro, and related trademarks are the property of their respective owners. This project is not affiliated with, endorsed by, or sponsored by Acer Inc.
+Released under the [MIT License](LICENSE). Acer and Nitro are trademarks of Acer Inc. This independent project is not affiliated with or endorsed by Acer.

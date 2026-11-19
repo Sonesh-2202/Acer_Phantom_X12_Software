@@ -24,7 +24,6 @@ import {
 } from './utils/webhid';
 import { LandingPage } from './components/LandingPage';
 import { StudioCockpit } from './components/StudioCockpit';
-import { PatronageModal } from './components/PatronageModal';
 import { LegalModal } from './components/LegalModal';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -81,7 +80,6 @@ export function App() {
   const [toastMessage, setToastMessage] = useState(null);
   const [edgeFlash, setEdgeFlash] = useState(false);
   const [theme, setTheme] = useState('dark');
-  const [isPatronageOpen, setIsPatronageOpen] = useState(false);
   const [isLegalOpen, setIsLegalOpen] = useState(false);
 
   const lenisRef = useRef(null);
@@ -986,12 +984,8 @@ export function App() {
         <LandingPage
           onLaunchStudio={transitionToStudio}
           onConnectReceiver={connected ? disconnectDevice : connectDevice}
-          onOpenPatronage={() => setIsPatronageOpen(true)}
           onOpenLegal={() => setIsLegalOpen(true)}
           connected={connected}
-          battery={battery}
-          batteryTelemetryStatus={batteryTelemetryStatus}
-          activeEffect={selectedEffect}
           activeColor={activeColor}
         />
       ) : (
@@ -1061,17 +1055,12 @@ export function App() {
           onImportProfile={handleImportProfile}
           onRestoreKnownGoodBaseline={restoreKnownGoodBaseline}
           // Modals & Theme
-          onOpenPatronage={() => setIsPatronageOpen(true)}
           theme={theme}
           onToggleTheme={toggleTheme}
         />
       )}
 
       {/* MODALS */}
-      <PatronageModal
-        isOpen={isPatronageOpen}
-        onClose={() => setIsPatronageOpen(false)}
-      />
       <LegalModal
         isOpen={isLegalOpen}
         onClose={() => setIsLegalOpen(false)}

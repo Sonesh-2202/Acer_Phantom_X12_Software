@@ -486,44 +486,6 @@ html.lenis, html.lenis body {
   transform: translateX(4px);
 }
 
-.btn-tactical-glass {
-  position: relative;
-  background: rgba(13, 15, 18, 0.7);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(163, 255, 18, 0.3);
-  box-shadow: var(--panel-highlight);
-  color: #FFFFFF;
-  text-decoration: none;
-  padding: 16px 24px;
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background var(--transition-fast), border-color var(--transition-fast), transform var(--transition-fast);
-}
-.btn-tactical-glass:hover {
-  background: rgba(20, 24, 30, 0.9);
-  border-color: var(--volt);
-  transform: translateY(-2px);
-}
-.diode-pulse {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--volt);
-  box-shadow: 0 0 8px var(--volt);
-  animation: pulse-glow 1.6s infinite ease-in-out;
-}
-.btn-label-secondary {
-  font-family: var(--font-display);
-  font-size: 0.95rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
-}
-
 .hero-quick-bar {
   display: flex;
   align-items: center;
@@ -945,184 +907,6 @@ html.lenis, html.lenis body {
   color: var(--text-muted);
 }
 
-/* SUPPORT SECTION */
-.support-section {
-  position: relative;
-  z-index: 10;
-  padding: 100px 0;
-  border-top: 1px solid var(--panel-border);
-}
-.manifesto-card {
-  background: #090B0E;
-  border: 1px solid var(--panel-border-strong);
-  box-shadow: var(--panel-highlight);
-  border-radius: 8px;
-  padding: 48px;
-  position: relative;
-}
-.manifesto-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
-}
-.manifesto-badge {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.08em;
-  color: var(--volt);
-}
-.blinking-dot {
-  width: 6px;
-  height: 6px;
-  background: var(--volt);
-  border-radius: 50%;
-  animation: pulse-glow 1.2s infinite ease-in-out;
-}
-.manifesto-meta {
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
-  color: var(--text-muted);
-}
-.manifesto-title {
-  font-family: var(--font-display);
-  font-size: clamp(1.8rem, 3vw, 2.6rem);
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  line-height: 1.2;
-  margin-bottom: 36px;
-  color: #FFFFFF;
-}
-
-.manifesto-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 48px;
-}
-.manifesto-body p {
-  font-size: 0.95rem;
-  line-height: 1.7;
-  color: var(--text-secondary);
-  margin-bottom: 18px;
-}
-.manifesto-body strong {
-  color: #FFFFFF;
-}
-.manifesto-body code {
-  font-family: var(--font-mono);
-  color: var(--volt);
-  background: rgba(163, 255, 18, 0.08);
-  padding: 2px 6px;
-  border-radius: 3px;
-}
-
-.manifesto-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-.action-card {
-  display: flex;
-  gap: 16px;
-  padding: 18px;
-  border-radius: 6px;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid var(--panel-border);
-  transition: border-color var(--transition-fast);
-}
-.action-card:hover {
-  border-color: rgba(163, 255, 18, 0.3);
-}
-.action-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 6px;
-  background: rgba(255, 255, 255, 0.05);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #FFFFFF;
-  flex-shrink: 0;
-}
-.volt-icon {
-  background: var(--volt-dim);
-  color: var(--volt);
-}
-.action-details h4 {
-  font-family: var(--font-display);
-  font-size: 1rem;
-  font-weight: 700;
-  margin-bottom: 4px;
-}
-.action-details p {
-  font-size: 0.82rem;
-  color: var(--text-muted);
-  margin-bottom: 10px;
-}
-
-.copy-terminal-box {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: #060709;
-  border: 1px solid var(--panel-border);
-  border-radius: 4px;
-  padding: 6px 10px;
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-}
-.copy-terminal-box code {
-  color: var(--text-secondary);
-  overflow-x: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.copy-btn, .snippet-copy-btn {
-  background: var(--panel-elevated);
-  border: 1px solid var(--panel-border);
-  color: var(--volt);
-  font-family: var(--font-mono);
-  font-size: 0.65rem;
-  font-weight: 700;
-  padding: 2px 8px;
-  border-radius: 3px;
-  cursor: pointer;
-  margin-left: 8px;
-}
-.copy-btn:hover, .snippet-copy-btn:hover {
-  background: var(--volt);
-  color: #060709;
-}
-
-.btn-patronage {
-  background: var(--volt);
-  color: #060709;
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  padding: 8px 16px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  transition: background var(--transition-fast);
-}
-.btn-patronage:hover {
-  background: var(--volt-hover);
-}
-.text-link-action {
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  color: var(--volt);
-  text-decoration: none;
-}
-
 .landing-footer {
   border-top: 1px solid var(--panel-border);
   padding: 32px 0;
@@ -1133,6 +917,8 @@ html.lenis, html.lenis body {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
 }
 .footer-brand {
   font-family: var(--font-display);
@@ -1143,6 +929,8 @@ html.lenis, html.lenis body {
 .footer-center {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 12px;
 }
 .footer-link-btn {
@@ -2553,8 +2341,37 @@ html.lenis, html.lenis body {
 
 .plate-social-links {
   display: flex;
+  flex-wrap: wrap;
   gap: 12px;
   margin-top: 24px;
+}
+.system-upi-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(200px, 280px);
+  align-items: center;
+  gap: 24px;
+  padding: 20px;
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.025);
+}
+.system-upi-copy h2 {
+  margin: 2px 0 8px;
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+}
+.system-upi-copy p {
+  margin: 0 0 14px;
+  color: var(--text-secondary);
+  font-size: 0.86rem;
+}
+.system-upi-qr {
+  display: block;
+  width: min(100%, 280px);
+  height: auto;
+  justify-self: center;
+  border-radius: 12px;
+  background: #f2f5fc;
 }
 .plate-chip {
   background: rgba(255, 255, 255, 0.04);
@@ -2596,31 +2413,6 @@ html.lenis, html.lenis body {
   max-height: calc(100vh - 32px);
   overflow-y: auto;
 }
-.upi-payment-section {
-  display: grid;
-  justify-items: center;
-  gap: 14px;
-  padding-top: 20px;
-  border-top: 1px solid var(--panel-border);
-}
-.upi-payment-heading {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 12px;
-  width: 100%;
-}
-.upi-payment-heading h3 {
-  margin: 0 0 4px;
-  font-family: var(--font-display);
-  font-size: 1rem;
-}
-.upi-payment-heading p {
-  margin: 0;
-  color: var(--text-secondary);
-  font-size: 0.82rem;
-}
 .upi-id-copy {
   display: flex;
   align-items: center;
@@ -2643,13 +2435,6 @@ html.lenis, html.lenis body {
   cursor: pointer;
 }
 .upi-id-copy button:hover { border-color: var(--volt); }
-.upi-payment-qr {
-  display: block;
-  width: min(100%, 320px);
-  height: auto;
-  border-radius: 12px;
-  background: #f2f5fc;
-}
 .tactical-dialog::backdrop {
   background: rgba(6, 7, 9, 0.85);
   backdrop-filter: blur(12px);
@@ -2733,14 +2518,17 @@ html.lenis, html.lenis body {
   .scrolly-cards-stack {
     width: 100%;
   }
+  .system-upi-panel {
+    grid-template-columns: 1fr;
+  }
+  .system-upi-qr {
+    width: min(100%, 320px);
+  }
   .tactical-bento-grid {
     grid-template-columns: 1fr;
   }
   .bento-span-2 {
     grid-column: span 1;
-  }
-  .manifesto-grid {
-    grid-template-columns: 1fr;
   }
   .cockpit-workspace {
     flex-direction: column;
@@ -2762,7 +2550,7 @@ html.lenis, html.lenis body {
 }
 
 /* ==========================================================================
-   LAUNCH-READINESS EXTENSIONS: PERFORMANCE, BUTTONS, MACROS, PROFILES, TELEMETRY
+   PERFORMANCE, PROFILES, AND TELEMETRY
    ========================================================================== */
 
 /* Low Battery Alert Banner */

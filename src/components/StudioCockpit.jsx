@@ -59,14 +59,14 @@ export function StudioCockpit({
   onExportProfile,
   onImportProfile,
   onRestoreKnownGoodBaseline,
-  // Modals & Theme
-  onOpenPatronage,
+  // Theme
   theme,
   onToggleTheme,
 }) {
   const [activeTab, setActiveTab] = useState('overview');
   const [sfxActive, setSfxActive] = useState(true);
   const [hasPendingLighting, setHasPendingLighting] = useState(false);
+  const [upiCopied, setUpiCopied] = useState(false);
 
   // New profile name input state
   const [newProfileName, setNewProfileName] = useState('');
@@ -939,6 +939,38 @@ export function StudioCockpit({
                       </p>
                     </div>
 
+                    <section className="system-upi-panel" aria-labelledby="system-upi-title">
+                      <div className="system-upi-copy">
+                        <span className="pk">SUPPORT</span>
+                        <h2 id="system-upi-title">Pay with UPI</h2>
+                        <p>Scan the QR code or use this UPI ID.</p>
+                        <div className="upi-id-copy">
+                          <code>sonesh2202@okicici</code>
+                          <button
+                            type="button"
+                            onClick={async () => {
+                              try {
+                                await navigator.clipboard.writeText('sonesh2202@okicici');
+                                setUpiCopied(true);
+                                window.setTimeout(() => setUpiCopied(false), 1800);
+                              } catch {
+                                setUpiCopied(false);
+                              }
+                            }}
+                          >
+                            {upiCopied ? 'COPIED' : 'COPY ID'}
+                          </button>
+                        </div>
+                      </div>
+                      <img
+                        className="system-upi-qr"
+                        src={`${import.meta.env.BASE_URL}upi-qr.png`}
+                        alt="UPI payment QR code for sonesh2202@okicici"
+                        width="1152"
+                        height="2048"
+                      />
+                    </section>
+
                     <div className="plate-social-links">
                       <a
                         href="https://github.com/sonesh-2202/Acer_Phantom_X12_Software"
@@ -957,20 +989,19 @@ export function StudioCockpit({
                         className="plate-chip"
                         onClick={() => sound.click()}
                       >
-                        <b>Discord &amp; Issues</b>
+                        <b>Issues</b>
                         <small>Report feedback</small>
                       </a>
-                      <button
-                        type="button"
+                      <a
+                        href="https://sonesh2202.me"
+                        target="_blank"
+                        rel="noopener noreferrer"
                         className="plate-chip"
-                        onClick={() => {
-                          sound.click();
-                          onOpenPatronage();
-                        }}
+                        onClick={() => sound.click()}
                       >
-                        <b>Support Dev</b>
-                        <small>Fund hardware tests</small>
-                      </button>
+                        <b>Website</b>
+                        <small>sonesh2202.me</small>
+                      </a>
                     </div>
                   </div>
                 </div>
