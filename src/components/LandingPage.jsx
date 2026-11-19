@@ -248,7 +248,7 @@ export function LandingPage({
           />
           <div ref={heroMouseRef} className="hero-mouse-wrapper">
             <img
-              src={`${import.meta.env.BASE_URL}assets/mouse-wireless.webp`}
+              src={`${import.meta.env.BASE_URL}assets/mouse-wired.webp`}
               alt="Acer Nitro Phantom X12 Wireless Gaming Mouse"
               className="hero-mouse-img"
               width="720"
@@ -312,7 +312,7 @@ export function LandingPage({
             <div ref={scrollyVisualRef} className="scrolly-visual-wrap" id="scrolly-visual">
               <div className="scrolly-ambient-halo"></div>
               <img
-                src={`${import.meta.env.BASE_URL}assets/mouse-wireless.webp`}
+                src={`${import.meta.env.BASE_URL}assets/mouse-wired.webp`}
                 alt="Acer Nitro Phantom X12 Hardware Breakdown"
                 className="scrolly-mouse-img"
               />

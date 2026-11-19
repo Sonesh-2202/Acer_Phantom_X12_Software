@@ -30,7 +30,7 @@ export function MouseHardwareVisual({
       {/* Hardware Chassis */}
       <div className={`relative filter drop-shadow-[0_24px_40px_rgba(0,0,0,0.92)] ${imgClassName}`}>
         <img
-          src={`${import.meta.env.BASE_URL}assets/mouse-wireless.webp`}
+          src={`${import.meta.env.BASE_URL}assets/mouse-wired.webp`}
           alt="Acer Nitro Phantom X12 Hardware Visualizer"
           className="w-full h-full object-contain block select-none pointer-events-none"
           width="720"

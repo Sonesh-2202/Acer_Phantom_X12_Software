@@ -57,17 +57,24 @@
 
 [data-theme="light"] {
   color-scheme: light;
-  --bg-void: #EAECEF;
-  --bg-dot: rgba(0, 0, 0, 0.05);
-  --panel-chassis: #F4F6F8;
+  --bg-void: #F3F5F7;
+  --bg-dot: rgba(18, 28, 40, 0.025);
+  --panel-chassis: #FFFFFF;
   --panel-elevated: #FFFFFF;
-  --panel-border: rgba(0, 0, 0, 0.08);
-  --panel-border-strong: rgba(0, 0, 0, 0.18);
+  --panel-border: rgba(18, 28, 40, 0.09);
+  --panel-border-strong: rgba(18, 28, 40, 0.16);
   --panel-highlight: inset 0 1px 0 0 rgba(255, 255, 255, 0.9);
   --text-primary: #0A0D12;
-  --text-secondary: #485260;
-  --text-muted: #7A8696;
-  --text-dim: #A6B2C2;
+  --text-secondary: #475467;
+  --text-muted: #667085;
+  --text-dim: #8993A2;
+  --volt: #4D7800;
+  --volt-rgb: 77, 120, 0;
+  --volt-hover: #3D6300;
+  --volt-glow: rgba(77, 120, 0, 0.18);
+  --volt-dim: rgba(77, 120, 0, 0.09);
+  --volt-border: rgba(77, 120, 0, 0.28);
+  --active-glow-soft: rgba(77, 120, 0, 0.12);
 }
 
 *, *::before, *::after {
@@ -1854,8 +1861,16 @@ html.lenis, html.lenis body {
   color: var(--volt);
 }
 .dpi-aux-meta {
-  text-align: right;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  max-width: 52%;
   font-family: var(--font-mono);
+}
+.dpi-aux-meta .meta-val {
+  text-align: right;
+  line-height: 1.35;
 }
 
 .dpi-paddle-rack {
@@ -3145,6 +3160,95 @@ html.lenis, html.lenis body {
   border-radius: 6px;
   padding: 10px 14px;
   flex-wrap: wrap;
+}
+
+/* Light cockpit surfaces: keep the hardware stage dark, while giving the
+   telemetry deck consistent contrast and quiet, neutral control fills. */
+[data-theme="light"] .studio-cockpit {
+  color: var(--text-primary);
+}
+[data-theme="light"] .cockpit-topbar {
+  background: rgba(250, 251, 252, 0.94);
+  border-bottom-color: var(--panel-border-strong);
+  box-shadow: 0 4px 18px rgba(16, 24, 40, 0.06);
+}
+[data-theme="light"] .studio-title,
+[data-theme="light"] .nav-item:hover,
+[data-theme="light"] .icon-button:hover {
+  color: var(--text-primary);
+}
+[data-theme="light"] .hardware-dock-nav,
+[data-theme="light"] .return-breadcrumb-btn,
+[data-theme="light"] .sfx-toggle-btn,
+[data-theme="light"] .telemetry-chip,
+[data-theme="light"] .connection-pill,
+[data-theme="light"] .icon-button {
+  background: rgba(16, 24, 40, 0.035);
+}
+[data-theme="light"] .dock-laser-pill {
+  background: var(--volt-dim);
+  box-shadow: none;
+}
+[data-theme="light"] .control-deck-scroller .panel,
+[data-theme="light"] .control-deck-scroller .btn-editor-card,
+[data-theme="light"] .control-deck-scroller .macro-sidebar,
+[data-theme="light"] .control-deck-scroller .macro-item-chip,
+[data-theme="light"] .control-deck-scroller .macro-editor-stage,
+[data-theme="light"] .control-deck-scroller .profile-card,
+[data-theme="light"] .control-deck-scroller .batch-dpi-bar {
+  background: var(--panel-chassis);
+  border-color: var(--panel-border);
+  box-shadow: 0 2px 8px rgba(16, 24, 40, 0.035);
+}
+[data-theme="light"] .control-deck-scroller .macro-item-chip,
+[data-theme="light"] .control-deck-scroller .profile-card-title,
+[data-theme="light"] .control-deck-scroller .btn-editor-title,
+[data-theme="light"] .control-deck-scroller .battery-numeric-readout strong,
+[data-theme="light"] .control-deck-scroller .dpi-big-number strong,
+[data-theme="light"] .control-deck-scroller .dpi-stage:hover,
+[data-theme="light"] .control-deck-scroller .text-white {
+  color: var(--text-primary) !important;
+}
+[data-theme="light"] .control-deck-scroller .battery-cell-array,
+[data-theme="light"] .control-deck-scroller .battery-view-toggle,
+[data-theme="light"] .control-deck-scroller .macro-recorder-deck {
+  background: #E9EDF2;
+  border-color: var(--panel-border);
+}
+[data-theme="light"] .control-deck-scroller .battery-cell {
+  background: #D8DEE7;
+}
+[data-theme="light"] .control-deck-scroller .dpi-stage,
+[data-theme="light"] .control-deck-scroller .batch-preset-btn,
+[data-theme="light"] .control-deck-scroller .stage-activate-btn {
+  background: #F7F8FA;
+  border-color: var(--panel-border);
+  color: var(--text-secondary);
+}
+[data-theme="light"] .control-deck-scroller .dpi-stage.active,
+[data-theme="light"] .control-deck-scroller .profile-card.active,
+[data-theme="light"] .control-deck-scroller .macro-item-chip.active {
+  background: var(--volt-dim);
+  border-color: var(--volt);
+  color: var(--volt);
+  box-shadow: none;
+}
+[data-theme="light"] .control-deck-scroller .dpi-num-input {
+  background: #FFFFFF;
+  color: var(--text-primary);
+}
+[data-theme="light"] .tactical-dialog {
+  background: #FFFFFF;
+  color: var(--text-primary);
+  box-shadow: 0 24px 64px rgba(16, 24, 40, 0.2);
+}
+[data-theme="light"] .tactical-dialog .text-white {
+  color: var(--text-primary) !important;
+}
+[data-theme="light"] .hud-toast {
+  background: #FFFFFF;
+  color: var(--text-primary);
+  box-shadow: 0 12px 32px rgba(16, 24, 40, 0.16);
 }
 .polling-test-info {
   display: flex;
