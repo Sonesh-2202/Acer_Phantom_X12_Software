@@ -1212,13 +1212,14 @@ html.lenis, html.lenis body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 24px;
+  gap: 16px;
+  padding: 0 28px;
 }
 
 .topbar-left {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 16px;
 }
 .return-breadcrumb-btn {
   background: rgba(255, 255, 255, 0.04);
@@ -1299,7 +1300,7 @@ html.lenis, html.lenis body {
   font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 0.06em;
-  padding: 6px 14px;
+  padding: 6px 10px;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -1320,7 +1321,21 @@ html.lenis, html.lenis body {
 .topbar-right {
   display: flex;
   align-items: center;
-  gap: 8px;
+  flex: 0 0 auto;
+  gap: 14px;
+}
+.topbar-telemetry-group,
+.topbar-connection-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.topbar-telemetry-group {
+  padding-right: 14px;
+  border-right: 1px solid var(--panel-border-strong);
+}
+.topbar-connection-actions {
+  gap: 12px;
 }
 .sfx-toggle-btn {
   background: rgba(255, 255, 255, 0.03);
@@ -1476,8 +1491,8 @@ html.lenis, html.lenis body {
 .bluetooth-connection-group {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 3px 4px 3px 8px;
+  gap: 6px;
+  padding: 4px 6px 4px 10px;
   border: 1px solid var(--panel-border-strong);
   border-radius: 6px;
   background: var(--panel-elevated);
@@ -1491,7 +1506,7 @@ html.lenis, html.lenis body {
   letter-spacing: 0.06em;
 }
 .bluetooth-connection-group .button {
-  padding: 7px 9px;
+  padding: 7px 10px;
   font-size: 0.65rem;
 }
 
@@ -2014,50 +2029,6 @@ html.lenis, html.lenis body {
   cursor: pointer;
 }
 
-.diagnostic-terminal-block {
-  background: #090B0E;
-  border: 1px solid var(--panel-border-strong);
-  box-shadow: var(--panel-highlight);
-  border-radius: 8px;
-  overflow: hidden;
-}
-.terminal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 14px 20px;
-  background: rgba(255, 255, 255, 0.02);
-  border-bottom: 1px solid var(--panel-border);
-}
-.terminal-title-group {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.terminal-prompt {
-  color: var(--volt);
-  font-family: var(--font-mono);
-  font-weight: 700;
-}
-.terminal-title {
-  font-family: var(--font-mono);
-  font-size: 0.8rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-}
-.terminal-tags {
-  display: flex;
-  gap: 8px;
-}
-.terminal-tag {
-  font-family: var(--font-mono);
-  font-size: 0.65rem;
-  padding: 2px 6px;
-  background: rgba(255, 255, 255, 0.04);
-  border-radius: 3px;
-  color: var(--text-muted);
-}
-
 .table-scroll {
   overflow-x: auto;
 }
@@ -2078,18 +2049,6 @@ html.lenis, html.lenis body {
   color: var(--text-muted);
   background: rgba(0, 0, 0, 0.2);
 }
-.ep-name {
-  display: block;
-  font-weight: 600;
-  color: #FFFFFF;
-}
-.ep-hex {
-  display: block;
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  color: var(--text-muted);
-}
-
 .tag {
   font-family: var(--font-mono);
   font-size: 0.68rem;
@@ -2117,17 +2076,6 @@ html.lenis, html.lenis body {
   background: var(--amber-dim);
   color: var(--amber);
   border: 1px solid rgba(255, 184, 0, 0.3);
-}
-
-.terminal-footer {
-  padding: 12px 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  color: var(--text-muted);
-  background: rgba(0, 0, 0, 0.2);
 }
 
 /* LIGHTING STUDIO */

@@ -296,90 +296,98 @@ export function StudioCockpit({
 
         {/* Right: Telemetry & Controls */}
         <div className="topbar-right">
-          <button
-            type="button"
-            className={`sfx-toggle-btn ${sfxActive ? 'active' : ''}`}
-            onClick={() => {
-              const next = !sfxActive;
-              setSfxActive(next);
-              sound.enabled = next;
-              sound.toggle();
-            }}
-            title="Toggle Tactical Audio Feedback"
-          >
-            <svg viewBox="0 0 16 16" fill="currentColor">
-              <path d="M11.536 14.01A8.473 8.473 0 0 0 14.026 8a8.47 8.47 0 0 0-2.49-6.01l-.708.707A7.476 7.476 0 0 1 13.025 8c0 2.071-.84 3.946-2.197 5.303l.708.707zM9.414 11.888A5.474 5.474 0 0 0 11.025 8a5.475 5.475 0 0 0-1.611-3.888l-.707.707A4.477 4.477 0 0 1 10.025 8a4.477 4.477 0 0 1-1.318 3.181l.707.707zM6.717 3.55A.5.5 0 0 1 7 4v8a.5.5 0 0 1-.812.39L3.825 10.5H1.5A.5.5 0 0 1 1 10V6a.5.5 0 0 1 .5-.5h2.325l2.363-1.89a.5.5 0 0 1 .529-.06z"/>
-            </svg>
-            <span className="sfx-label">{sfxActive ? 'SFX ON' : 'SFX MUTED'}</span>
-          </button>
-
-          <div className="telemetry-chip">
-            <span className="chip-dot"></span>
-            <span>Polling {activePolling} Hz</span>
-          </div>
-
-          <div className={`connection-pill ${connected || wiredConnected || bluetoothConnected || bluetoothHidConnected ? 'connected' : ''}`}>
-            <span className="status-led" aria-hidden="true"></span>
-            <span>{connected ? '2.4 GHz Connected' : wiredConnected ? 'Wired Control Link' : bluetoothHidConnected ? 'Bluetooth HID Control' : bluetoothConnected ? 'Bluetooth Battery Link' : 'Not connected'}</span>
-          </div>
-
-          <button
-            type="button"
-            className="icon-button theme-toggle"
-            onClick={() => {
-              sound.toggle();
-              onToggleTheme();
-            }}
-            aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-            aria-pressed={theme === 'light'}
-            title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-          >
-            {theme === 'dark' ? (
-              <svg viewBox="0 0 18 18"><circle cx="9" cy="9" r="3.2"/><path d="M9 1.5v1.8M9 14.7v1.8M1.5 9h1.8M14.7 9h1.8M3.7 3.7l1.3 1.3M13 13l1.3 1.3M14.3 3.7L13 5M5 13l-1.3 1.3"/></svg>
-            ) : (
-              <svg viewBox="0 0 18 18"><path d="M14.8 11.2A6.3 6.3 0 0 1 6.8 3.2a6.3 6.3 0 1 0 8 8z"/></svg>
-            )}
-          </button>
-
-          <button
-            type="button"
-            className={`button ${wiredConnected ? 'button-disconnect' : 'button-connect'}`}
-            onClick={() => wiredConnected ? onDisconnectWired?.() : onConnectWired?.()}
-            disabled={!wiredConnected && !onConnectWired}
-          >
-            {wiredConnected ? 'DISCONNECT WIRED' : 'CONNECT WIRED'}
-          </button>
-
-          <div className="bluetooth-connection-group" role="group" aria-label="Bluetooth connections">
-            <span className="bluetooth-group-label">BLUETOOTH</span>
+          <div className="topbar-telemetry-group">
             <button
               type="button"
-              className={`button ${bluetoothHidConnected ? 'button-disconnect' : 'button-connect'}`}
-              onClick={() => bluetoothHidConnected ? onDisconnectBluetoothHid?.() : onConnectBluetoothHid?.()}
-              disabled={!bluetoothHidConnected && !onConnectBluetoothHid}
+              className={`sfx-toggle-btn ${sfxActive ? 'active' : ''}`}
+              onClick={() => {
+                const next = !sfxActive;
+                setSfxActive(next);
+                sound.enabled = next;
+                sound.toggle();
+              }}
+              title="Toggle Tactical Audio Feedback"
             >
-              {bluetoothHidConnected ? 'DISCONNECT CONTROL' : 'CONNECT CONTROL'}
+              <svg viewBox="0 0 16 16" fill="currentColor">
+                <path d="M11.536 14.01A8.473 8.473 0 0 0 14.026 8a8.47 8.47 0 0 0-2.49-6.01l-.708.707A7.476 7.476 0 0 1 13.025 8c0 2.071-.84 3.946-2.197 5.303l.708.707zM9.414 11.888A5.474 5.474 0 0 0 11.025 8a5.475 5.475 0 0 0-1.611-3.888l-.707.707A4.477 4.477 0 0 1 10.025 8a4.477 4.477 0 0 1-1.318 3.181l.707.707zM6.717 3.55A.5.5 0 0 1 7 4v8a.5.5 0 0 1-.812.39L3.825 10.5H1.5A.5.5 0 0 1 1 10V6a.5.5 0 0 1 .5-.5h2.325l2.363-1.89a.5.5 0 0 1 .529-.06z" />
+              </svg>
+              <span className="sfx-label">{sfxActive ? 'SFX ON' : 'SFX MUTED'}</span>
             </button>
+
+            <div className="telemetry-chip">
+              <span className="chip-dot"></span>
+              <span>Polling {activePolling} Hz</span>
+            </div>
+
+            <div className={`connection-pill ${connected || wiredConnected || bluetoothConnected || bluetoothHidConnected ? 'connected' : ''}`}>
+              <span className="status-led" aria-hidden="true"></span>
+              <span>{connected ? '2.4 GHz Connected' : wiredConnected ? 'Wired Control Link' : bluetoothHidConnected ? 'Bluetooth HID Control' : bluetoothConnected ? 'Bluetooth Battery Link' : 'Not connected'}</span>
+            </div>
+
             <button
               type="button"
-              className={`button ${bluetoothConnected ? 'button-disconnect' : 'button-connect'}`}
-              onClick={() => bluetoothConnected ? onDisconnectBluetooth?.() : onConnectBluetooth?.()}
-              disabled={!bluetoothConnected && !onConnectBluetooth}
+              className="icon-button theme-toggle"
+              onClick={() => {
+                sound.toggle();
+                onToggleTheme();
+              }}
+              aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+              aria-pressed={theme === 'light'}
+              title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
             >
-              {bluetoothConnected ? 'DISCONNECT BATTERY' : 'CONNECT BATTERY'}
+              {theme === 'dark' ? (
+                <svg viewBox="0 0 18 18"><circle cx="9" cy="9" r="3.2"/><path d="M9 1.5v1.8M9 14.7v1.8M1.5 9h1.8M14.7 9h1.8M3.7 3.7l1.3 1.3M13 13l1.3 1.3M14.3 3.7L13 5M5 13l-1.3 1.3"/></svg>
+              ) : (
+                <svg viewBox="0 0 18 18"><path d="M14.8 11.2A6.3 6.3 0 0 1 6.8 3.2a6.3 6.3 0 1 0 8 8z"/></svg>
+              )}
             </button>
           </div>
 
-          <button
-            type="button"
-            className={`button ${connected ? 'button-secondary' : 'button-primary'}`}
-            onClick={() => {
-              sound.toggle();
-              onConnectToggle();
-            }}
-          >
-            {connected ? 'DISCONNECT' : <><span aria-hidden="true">＋</span> Connect receiver</>}
-          </button>
+          <div className="topbar-connection-actions">
+            <button
+              type="button"
+              className={`button ${wiredConnected ? 'button-disconnect' : 'button-connect'}`}
+              onClick={() => wiredConnected ? onDisconnectWired?.() : onConnectWired?.()}
+              disabled={!wiredConnected && !onConnectWired}
+            >
+              {wiredConnected ? 'DISCONNECT WIRED' : 'CONNECT WIRED'}
+            </button>
+
+            <div className="bluetooth-connection-group" role="group" aria-label="Bluetooth connections">
+              <span className="bluetooth-group-label">BLUETOOTH</span>
+              <button
+                type="button"
+                className={`button ${bluetoothHidConnected ? 'button-disconnect' : 'button-connect'}`}
+                onClick={() => bluetoothHidConnected ? onDisconnectBluetoothHid?.() : onConnectBluetoothHid?.()}
+                disabled={!bluetoothHidConnected && !onConnectBluetoothHid}
+                aria-label={bluetoothHidConnected ? 'Disconnect Bluetooth control' : 'Connect Bluetooth control'}
+                title={bluetoothHidConnected ? 'Disconnect Bluetooth control' : 'Connect Bluetooth control'}
+              >
+                CONTROL
+              </button>
+              <button
+                type="button"
+                className={`button ${bluetoothConnected ? 'button-disconnect' : 'button-connect'}`}
+                onClick={() => bluetoothConnected ? onDisconnectBluetooth?.() : onConnectBluetooth?.()}
+                disabled={!bluetoothConnected && !onConnectBluetooth}
+                aria-label={bluetoothConnected ? 'Disconnect Bluetooth battery' : 'Connect Bluetooth battery'}
+                title={bluetoothConnected ? 'Disconnect Bluetooth battery' : 'Connect Bluetooth battery'}
+              >
+                BATTERY
+              </button>
+            </div>
+
+            <button
+              type="button"
+              className={`button ${connected ? 'button-secondary' : 'button-primary'}`}
+              onClick={() => {
+                sound.toggle();
+                onConnectToggle();
+              }}
+            >
+              {connected ? 'DISCONNECT' : <><span aria-hidden="true">＋</span> Connect receiver</>}
+            </button>
+          </div>
         </div>
       </header>
 
@@ -625,115 +633,6 @@ export function StudioCockpit({
                   </article>
                 </div>
 
-                {/* Live Diagnostic Terminal Matrix */}
-                <div className="diagnostic-terminal-block">
-                  <div className="terminal-header">
-                    <div className="terminal-title-group">
-                      <span className="terminal-prompt">&gt;</span>
-                      <h3 className="terminal-title">LIVE FIRMWARE DIAGNOSTIC TERMINAL // AUDIT MATRIX</h3>
-                    </div>
-                    <div className="terminal-tags">
-                      <span className="terminal-tag">YJX-CHIP A8A5:2255</span>
-                      <span className="terminal-tag">VID:0xA8A5 PID:0x2255</span>
-                    </div>
-                  </div>
-
-                  <div className="table-scroll" tabIndex={0} role="region" aria-label="HID Capabilities Matrix">
-                    <table className="capability-table tactical-table">
-                      <thead>
-                        <tr>
-                          <th scope="col">HID ENDPOINT / CAPABILITY</th>
-                          <th scope="col">2.4 GHz RECEIVER</th>
-                          <th scope="col">WIRED / BLUETOOTH</th>
-                          <th scope="col">AUDIT STATUS</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr>
-                          <th scope="row">
-                            <span className="ep-name">Receiver Identity &amp; Firmware Text</span>
-                            <code className="ep-hex">CMD 0x03 -&gt; RESP 0xAA 0x03</code>
-                          </th>
-                          <td>Read verified</td>
-                          <td>Not enumerated</td>
-                          <td><span className="tag tag-ok">VERIFIED</span></td>
-                        </tr>
-                        <tr>
-                          <th scope="row">
-                            <span className="ep-name">Battery Level Streaming</span>
-                            <code className="ep-hex">UNSOLICITED 0xFA [0xD0]</code>
-                          </th>
-                          <td>Streaming live events (0xD0)</td>
-                          <td>Unknown</td>
-                          <td><span className="tag tag-live">LIVE</span></td>
-                        </tr>
-                        <tr>
-                          <th scope="row">
-                            <span className="ep-name">Active DPI Stage + 6 Values</span>
-                            <code className="ep-hex">CMD 0x0E -&gt; RESP 0xAA 0x0E</code>
-                          </th>
-                          <td>Read verified (200-12000)</td>
-                          <td>Not enumerated</td>
-                          <td><span className="tag tag-ok">VERIFIED</span></td>
-                        </tr>
-                        <tr>
-                          <th scope="row">
-                            <span className="ep-name">Polling Rate Calibration (125-1000 Hz)</span>
-                            <code className="ep-hex">CMD 0x0F &amp; 0x0E (OFFSET 10)</code>
-                          </th>
-                          <td>Read &amp; Write verified</td>
-                          <td>Not enumerated</td>
-                          <td><span className="tag tag-ok">VERIFIED</span></td>
-                        </tr>
-                        <tr>
-                          <th scope="row">
-                            <span className="ep-name">Lighting Effects (7 Onboard Modes)</span>
-                            <code className="ep-hex">CMD 0x21 [MODE_BYTE]</code>
-                          </th>
-                          <td>Confirmed on physical hardware</td>
-                          <td>Unknown</td>
-                          <td><span className="tag tag-ok">VERIFIED</span></td>
-                        </tr>
-                        <tr>
-                          <th scope="row">
-                            <span className="ep-name">DPI Stage Profile Write</span>
-                            <code className="ep-hex">CMD 0x0F &amp; READBACK VERIFY</code>
-                          </th>
-                          <td>Implemented with tail preservation</td>
-                          <td>Not enumerated</td>
-                          <td><span className="tag tag-ok">VERIFIED</span></td>
-                        </tr>
-                        <tr>
-                          <th scope="row">
-                            <span className="ep-name">Custom Arbitrary ARGB LED Writes</span>
-                            <code className="ep-hex">PER-ZONE PACKET UNKNOWN</code>
-                          </th>
-                          <td>Hardware uses 7 preset modes</td>
-                          <td>Unknown</td>
-                          <td><span className="tag tag-read">PREVIEW ONLY</span></td>
-                        </tr>
-                        <tr>
-                          <th scope="row">
-                            <span className="ep-name">Button Remapping &amp; Macros</span>
-                            <code className="ep-hex">CMD 0x09 / 0x0D / 0x10</code>
-                          </th>
-                          <td>Decoded defaults; custom locked</td>
-                          <td>Unknown</td>
-                          <td><span className="tag tag-read">LOCAL PROFILE</span></td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-
-                  <div className="terminal-footer">
-                    <span className="terminal-foot-text">
-                      “Not enumerated” indicates mode has not been hooked to physical sniffer.
-                    </span>
-                    <span className="terminal-foot-status">
-                      {controlConnected ? controlMode === 'wired' ? 'WebHID · Wired Connected' : controlMode === 'bluetooth' ? 'WebHID · Bluetooth Connected' : 'WebHID · 2.4GHz Connected' : 'WebHID · Disconnected'}
-                    </span>
-                  </div>
-                </div>
               </section>
             )}
 
@@ -811,31 +710,6 @@ export function StudioCockpit({
                     </div>
                   </article>
 
-                  <aside className="panel write-status-panel">
-                    <p className="eyebrow">FIRMWARE ARCHITECTURE AUDIT</p>
-                    <h2>LIGHTING CAPABILITIES</h2>
-                    <ul className="fact-list tactical-fact-list">
-                      <li>
-                        <code>55 21</code>
-                        <span>Preset mode write — <b className="volt-text">VERIFIED &amp; LIVE</b></span>
-                      </li>
-                      <li>
-                        <code>0x00–0x06</code>
-                        <span>7 hardware ROM routines on mouse MCU</span>
-                      </li>
-                      <li>
-                        <code>ARGB</code>
-                        <span>Per-LED registers not exposed by firmware</span>
-                      </li>
-                      <li>
-                        <code>EEPROM</code>
-                        <span>Lighting preset persists across mouse reboots</span>
-                      </li>
-                    </ul>
-                    <p className="muted-copy">
-                      The receiver firmware communicates with the mouse microcontroller via Command <code>0x21</code> to cycle through 7 onboard factory-calibrated lighting routines stored in ROM. Arbitrary custom color registers and per-zone ARGB are unexposed by the mouse hardware. Transmitting writes directly to physical hardware over the 2.4 GHz link.
-                    </p>
-                  </aside>
                 </div>
               </section>
             )}
@@ -1009,31 +883,6 @@ export function StudioCockpit({
                     </div>
                   </article>
 
-                  <aside className="panel write-status-panel">
-                    <p className="eyebrow">WRITE SAFETY AUDIT</p>
-                    <h2>COMMAND PERMISSIONS</h2>
-                    <ul className="fact-list tactical-fact-list">
-                      <li>
-                        <code>55 0E</code>
-                        <span>DPI profile read — <b className="volt-text">VERIFIED &amp; LIVE</b></span>
-                      </li>
-                      <li>
-                        <code>55 03</code>
-                        <span>Receiver query — <b className="volt-text">VERIFIED &amp; LIVE</b></span>
-                      </li>
-                      <li>
-                        <code>55 21</code>
-                        <span>Lighting mode write — <b className="volt-text">VERIFIED &amp; LIVE</b></span>
-                      </li>
-                      <li>
-                        <code>55 0F</code>
-                        <span>Profile write + read-back — <b className="volt-text">VERIFIED &amp; ACTIVE</b></span>
-                      </li>
-                    </ul>
-                    <p className="muted-copy">
-                      Settings packets are sent with exact captured shape and tail preservation. Every write is verified via read-back to guarantee zero profile corruption.
-                    </p>
-                  </aside>
                 </div>
               </section>
             )}
@@ -1127,20 +976,6 @@ export function StudioCockpit({
                     )}
                   </article>
 
-                  <aside className="panel capture-panel">
-                    <p className="eyebrow">CAPTURE LOG &amp; ARTIFACTS</p>
-                    <ul className="fact-list tactical-fact-list">
-                      <li><code>cmd 0x09</code><span>55 09 A5 22 31 ... (27 identical pairs)</span></li>
-                      <li><code>code 20 01</code><span>Left click standard mask</span></li>
-                      <li><code>code 20 02</code><span>Right click standard mask</span></li>
-                      <li><code>code 20 04</code><span>Scroll click standard mask</span></li>
-                      <li><code>code F0 01</code><span>Hardware DPI cycle function</span></li>
-                      <li><code>rule</code><span>Safe gating prevents unrecoverable clicks</span></li>
-                    </ul>
-                    <p className="muted-copy mt-3">
-                      Hovering any button highlights its target region on the hardware visualizer.
-                    </p>
-                  </aside>
                 </div>
               </section>
             )}
