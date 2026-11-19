@@ -1649,13 +1649,6 @@ html.lenis, html.lenis body {
   cursor: pointer;
   transition: all 0.2s ease;
 }
-.svg-button-target:hover, .svg-button-target.highlighted {
-  fill: rgba(163, 255, 18, 0.15);
-  stroke: var(--volt);
-  stroke-width: 2;
-  filter: drop-shadow(0 0 6px var(--volt));
-}
-
 .hud-callout {
   position: absolute;
   z-index: 10;
@@ -3377,8 +3370,8 @@ html.lenis, html.lenis body {
 }
 
 /* Keep the hardware stage in the selected theme as well as the control deck. */
-[data-theme="light"] .hardware-sticky-stage {
-  background: #F3F5F7;
+[data-theme="light"] .studio-cockpit .hardware-sticky-stage {
+  background: var(--bg-void) !important;
   border-right-color: var(--panel-border-strong);
   color: var(--text-primary);
 }
