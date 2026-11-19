@@ -993,6 +993,16 @@ export function StudioCockpit({
                         <small>Report feedback</small>
                       </a>
                       <a
+                        href="https://github.com/sponsors/sonesh-2202"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="plate-chip"
+                        onClick={() => sound.click()}
+                      >
+                        <b>GitHub Sponsors</b>
+                        <small>Support development</small>
+                      </a>
+                      <a
                         href="https://sonesh2202.me"
                         target="_blank"
                         rel="noopener noreferrer"
