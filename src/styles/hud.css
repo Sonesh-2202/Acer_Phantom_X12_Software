@@ -1364,6 +1364,7 @@ html.lenis, html.lenis body {
   font-size: 0.98rem;
   font-weight: 700;
   color: #FFFFFF;
+  margin-top: 4px;
 }
 .meta-sub {
   font-family: var(--font-mono);
@@ -2911,6 +2912,25 @@ html.lenis, html.lenis body {
 [data-theme="light"] .icon-button:hover {
   color: var(--text-primary);
 }
+[data-theme="light"] .hardware-sticky-stage {
+  background: var(--bg-void);
+}
+[data-theme="light"] .about-spec-plate {
+  background: linear-gradient(135deg, #FFFFFF 0%, #F7F9FB 100%);
+  border-color: var(--panel-border-strong);
+  box-shadow: 0 8px 28px rgba(16, 24, 40, 0.06);
+}
+[data-theme="light"] .about-spec-plate .pv,
+[data-theme="light"] .about-spec-plate .plate-chip {
+  color: var(--text-primary);
+}
+[data-theme="light"] .about-spec-plate .system-upi-panel,
+[data-theme="light"] .about-spec-plate .plate-chip {
+  background: rgba(16, 24, 40, 0.025);
+}
+[data-theme="light"] .about-spec-plate .plate-chip:hover {
+  background: #FFFFFF;
+}
 [data-theme="light"] .hardware-dock-nav,
 [data-theme="light"] .return-breadcrumb-btn,
 [data-theme="light"] .sfx-toggle-btn,
@@ -2962,6 +2982,27 @@ html.lenis, html.lenis body {
 }
 [data-theme="light"] .control-deck-scroller .dpi-num-input {
   background: #FFFFFF;
+  color: var(--text-primary);
+}
+[data-theme="light"] .control-deck-scroller .mode-copy b,
+[data-theme="light"] .control-deck-scroller .poll-hz {
+  color: var(--text-primary);
+}
+[data-theme="light"] .control-deck-scroller .mode-card.selected .mode-copy b,
+[data-theme="light"] .control-deck-scroller .poll-switch.active .poll-hz {
+  color: var(--volt);
+}
+[data-theme="light"] .control-deck-scroller .dpi-row input[type="range"] {
+  background: #D5DCE5;
+}
+[data-theme="light"] .control-deck-scroller .dpi-row.active input[type="range"] {
+  background: #C6D5A7;
+}
+[data-theme="light"] .control-deck-scroller .poll-ms {
+  color: #475467;
+}
+[data-theme="light"] .control-deck-scroller .range-label,
+[data-theme="light"] .control-deck-scroller .range-label b {
   color: var(--text-primary);
 }
 [data-theme="light"] .tactical-dialog {

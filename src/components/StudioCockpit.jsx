@@ -935,7 +935,7 @@ export function StudioCockpit({
                     <div className="plate-bio-section">
                       <span className="pk">DEVELOPER STATEMENT</span>
                       <p className="plate-bio-text">
-                        Engineered to eliminate bulky OEM background bloatware and return hardware ownership directly to the user. Built with love for gaming hardware, clean code, and zero background telemetry.
+                        I wanted a simple way to control the mouse I bought, so I built this app. It took me about a week to put together. If you find it useful, your support helps me keep improving it. Thank you!
                       </p>
                     </div>
 
