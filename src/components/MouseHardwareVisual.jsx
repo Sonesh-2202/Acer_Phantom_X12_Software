@@ -10,17 +10,16 @@ export function MouseHardwareVisual({
   onButtonClick = null,
   showCallouts = true,
   className = '',
-  imgClassName = '',
 }) {
   const isVoid = activeEffect === 6;
   const glowHex = isVoid ? '#1a1a1a' : activeColor;
   const glowOpacity = isVoid ? 0.05 : 0.85;
 
   return (
-    <div className={`relative flex items-center justify-center ${className}`}>
+    <div className={`mouse-hardware-visual ${className}`}>
       {/* Ambient Radial Backlight Glow */}
       <div
-        className="absolute w-[360px] h-[360px] rounded-full pointer-events-none transition-all duration-700 blur-[50px]"
+        className="mouse-ambient-backlight"
         style={{
           background: `radial-gradient(circle, ${glowHex} 0%, transparent 65%)`,
           opacity: isVoid ? 0.05 : 0.4,
@@ -28,11 +27,11 @@ export function MouseHardwareVisual({
       />
 
       {/* Hardware Chassis */}
-      <div className={`relative filter drop-shadow-[0_24px_40px_rgba(0,0,0,0.92)] ${imgClassName}`}>
+      <div className="mouse-hardware-chassis">
         <img
           src={`${import.meta.env.BASE_URL}assets/mouse-wired.webp`}
           alt="Acer Nitro Phantom X12 Hardware Visualizer"
-          className="w-full h-full object-contain block select-none pointer-events-none"
+          className="mouse-hardware-image"
           width="720"
           height="1234"
         />
@@ -40,7 +39,7 @@ export function MouseHardwareVisual({
         {/* Interactive SVG Overlay Mapped to Cutouts */}
         <svg
           viewBox="0 0 720 1234"
-          className="absolute inset-0 w-full h-full pointer-events-auto"
+          className="mouse-hardware-overlay"
           aria-hidden="true"
         >
           {/* Scroll Wheel RGB Zone */}

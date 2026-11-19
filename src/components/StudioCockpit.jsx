@@ -91,7 +91,6 @@ export function StudioCockpit({
 
   const laserPillRef = useRef(null);
   const dockNavRef = useRef(null);
-  const dpiNumberRef = useRef(null);
   const fileInputRef = useRef(null);
 
   // Keyboard navigation [1] to [7]
@@ -157,25 +156,10 @@ export function StudioCockpit({
     return stages.some((val, idx) => val !== hardwareProfile.stages[idx]);
   })();
 
-  // Rapid numeric scrambler animation on DPI switch
-  const handleStageClick = (dpi, idx) => {
+  // The active stage is the source of truth for the displayed DPI.
+  const handleStageClick = (idx) => {
     sound.click();
     if (onChangeActiveStage) onChangeActiveStage(idx + 1);
-
-    if (dpiNumberRef.current) {
-      const currentVal = parseInt(dpiNumberRef.current.textContent.replace(/,/g, ''), 10) || 1200;
-      const obj = { val: currentVal };
-      gsap.to(obj, {
-        val: dpi,
-        duration: 0.35,
-        ease: 'power2.out',
-        onUpdate: () => {
-          if (dpiNumberRef.current) {
-            dpiNumberRef.current.textContent = Math.round(obj.val).toLocaleString('en-US');
-          }
-        },
-      });
-    }
   };
 
   const handleEffectSelect = (effectId) => {
@@ -251,6 +235,7 @@ export function StudioCockpit({
   };
 
   const currentEffectObj = EFFECTS.find((e) => e.id === selectedEffect) || EFFECTS[0];
+  const selectedDpi = stages[activeStage - 1] ?? activeDpi;
   const activeMacro = macros[selectedMacroIndex] || macros[0] || { name: 'New Macro', loopCount: 1, events: [] };
   const selectedBtnObj = buttonMappings.find((b) => b.id === highlightedButton) || buttonMappings[0];
 
@@ -340,12 +325,14 @@ export function StudioCockpit({
 
           <button
             type="button"
-            className="icon-button"
+            className="icon-button theme-toggle"
             onClick={() => {
               sound.toggle();
               onToggleTheme();
             }}
-            aria-label="Switch Theme"
+            aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+            aria-pressed={theme === 'light'}
+            title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
           >
             {theme === 'dark' ? (
               <svg viewBox="0 0 18 18"><circle cx="9" cy="9" r="3.2"/><path d="M9 1.5v1.8M9 14.7v1.8M1.5 9h1.8M14.7 9h1.8M3.7 3.7l1.3 1.3M13 13l1.3 1.3M14.3 3.7L13 5M5 13l-1.3 1.3"/></svg>
@@ -356,30 +343,32 @@ export function StudioCockpit({
 
           <button
             type="button"
-            className="button button-secondary"
+            className={`button ${wiredConnected ? 'button-disconnect' : 'button-connect'}`}
             onClick={() => wiredConnected ? onDisconnectWired?.() : onConnectWired?.()}
             disabled={!wiredConnected && !onConnectWired}
           >
             {wiredConnected ? 'DISCONNECT WIRED' : 'CONNECT WIRED'}
           </button>
 
-          <button
-            type="button"
-            className="button button-secondary"
-            onClick={() => bluetoothHidConnected ? onDisconnectBluetoothHid?.() : onConnectBluetoothHid?.()}
-            disabled={!bluetoothHidConnected && !onConnectBluetoothHid}
-          >
-            {bluetoothHidConnected ? 'DISCONNECT BT CONTROL' : 'CONNECT BT CONTROL'}
-          </button>
-
-          <button
-            type="button"
-            className="button button-secondary"
-            onClick={() => bluetoothConnected ? onDisconnectBluetooth?.() : onConnectBluetooth?.()}
-            disabled={!bluetoothConnected && !onConnectBluetooth}
-          >
-            {bluetoothConnected ? 'DISCONNECT BT BATTERY' : 'CONNECT BT BATTERY'}
-          </button>
+          <div className="bluetooth-connection-group" role="group" aria-label="Bluetooth connections">
+            <span className="bluetooth-group-label">BLUETOOTH</span>
+            <button
+              type="button"
+              className={`button ${bluetoothHidConnected ? 'button-disconnect' : 'button-connect'}`}
+              onClick={() => bluetoothHidConnected ? onDisconnectBluetoothHid?.() : onConnectBluetoothHid?.()}
+              disabled={!bluetoothHidConnected && !onConnectBluetoothHid}
+            >
+              {bluetoothHidConnected ? 'DISCONNECT CONTROL' : 'CONNECT CONTROL'}
+            </button>
+            <button
+              type="button"
+              className={`button ${bluetoothConnected ? 'button-disconnect' : 'button-connect'}`}
+              onClick={() => bluetoothConnected ? onDisconnectBluetooth?.() : onConnectBluetooth?.()}
+              disabled={!bluetoothConnected && !onConnectBluetooth}
+            >
+              {bluetoothConnected ? 'DISCONNECT BATTERY' : 'CONNECT BATTERY'}
+            </button>
+          </div>
 
           <button
             type="button"
@@ -424,7 +413,7 @@ export function StudioCockpit({
             <MouseHardwareVisual
               activeEffect={selectedEffect}
               activeColor={activeColor}
-              activeDpi={activeDpi}
+              activeDpi={selectedDpi}
               activePolling={activePolling}
               battery={battery}
               highlightedButton={highlightedButton}
@@ -433,7 +422,6 @@ export function StudioCockpit({
                 setHighlightedButton(btn);
                 if (activeTab !== 'buttons') switchTab('buttons');
               }}
-              imgClassName="w-[280px] h-[480px]"
             />
           </div>
 
@@ -581,7 +569,7 @@ export function StudioCockpit({
 
                     <div className="dpi-main-display">
                       <div className="dpi-big-number">
-                        <strong ref={dpiNumberRef}>{activeDpi.toLocaleString('en-US')}</strong>
+                        <strong>{selectedDpi.toLocaleString('en-US')}</strong>
                         <span className="unit">DPI</span>
                       </div>
                       <div className="dpi-aux-meta">
@@ -597,7 +585,7 @@ export function StudioCockpit({
                           key={idx}
                           type="button"
                           className={`dpi-stage ${idx + 1 === activeStage ? 'active' : ''}`}
-                          onClick={() => handleStageClick(dpi, idx)}
+                          onClick={() => handleStageClick(idx)}
                           title={`Click to switch to Stage ${idx + 1} (${dpi} DPI)`}
                         >
                           <span>{dpi.toLocaleString('en-US')}</span>
