@@ -366,23 +366,6 @@ export function LandingPage({
                   </div>
                 </div>
 
-                <div className="action-card">
-                  <div className="action-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 17l6-6-6-6M12 19h8"/></svg>
-                  </div>
-                  <div className="action-details">
-                    <h4>Submit USB Packet Captures</h4>
-                    <p>Follow our passive Wireshark / WebHID guide to capture button sequences.</p>
-                    <a
-                      href="https://github.com/sonesh-2202/Acer_Phantom_X12_Software/blob/main/docs/webhid_capture_instructions.md"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-link-action"
-                    >
-                      READ CAPTURE GUIDE →
-                    </a>
-                  </div>
-                </div>
               </div>
             </div>
           </div>

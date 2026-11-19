@@ -1,8 +1,19 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { sound } from '../utils/audio';
 
 export function PatronageModal({ isOpen, onClose }) {
+  const [upiCopied, setUpiCopied] = useState(false);
   if (!isOpen) return null;
+
+  const copyUpiId = async () => {
+    try {
+      await navigator.clipboard.writeText('sonesh2202@okicici');
+      setUpiCopied(true);
+      window.setTimeout(() => setUpiCopied(false), 1800);
+    } catch {
+      setUpiCopied(false);
+    }
+  };
 
   return (
     <div
@@ -62,6 +73,28 @@ export function PatronageModal({ isOpen, onClose }) {
               <small className="text-xs text-text-muted">Support dev research</small>
             </a>
           </div>
+
+          <section className="upi-payment-section" aria-labelledby="upi-payment-title">
+            <div className="upi-payment-heading">
+              <div>
+                <h3 id="upi-payment-title">PAY WITH UPI</h3>
+                <p>Scan this QR code with any UPI app.</p>
+              </div>
+              <div className="upi-id-copy">
+                <code>sonesh2202@okicici</code>
+                <button type="button" onClick={copyUpiId}>
+                  {upiCopied ? 'COPIED' : 'COPY ID'}
+                </button>
+              </div>
+            </div>
+            <img
+              className="upi-payment-qr"
+              src={`${import.meta.env.BASE_URL}upi-qr.png`}
+              alt="UPI payment QR code for sonesh2202@okicici"
+              width="1152"
+              height="2048"
+            />
+          </section>
 
           <div className="dialog-footnote text-[11px] text-text-muted border-t border-panel-border pt-3">
             <span>No proprietary code or copyrighted binaries are sold. All research is published for public benefit.</span>
