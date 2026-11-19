@@ -50,10 +50,6 @@ export function StudioCockpit({
   activeColor,
   onApplyEffect,
   isApplyingLighting = false,
-  // Macros
-  macros = [],
-  onSaveMacro,
-  onDeleteMacro,
   // Profiles & Restore
   profiles = [],
   activeProfileId = 'default',
@@ -75,18 +71,11 @@ export function StudioCockpit({
   // New profile name input state
   const [newProfileName, setNewProfileName] = useState('');
 
-  // Macro Editor state
-  const [selectedMacroIndex, setSelectedMacroIndex] = useState(0);
-  const [isRecordingMacro, setIsRecordingMacro] = useState(false);
-  const [recordedEvents, setRecordedEvents] = useState([]);
-  const recordingStartTimeRef = useRef(null);
-  const lastEventTimeRef = useRef(null);
-
   const laserPillRef = useRef(null);
   const dockNavRef = useRef(null);
   const fileInputRef = useRef(null);
 
-  // Keyboard navigation [1] to [6]
+  // Keyboard navigation [1] to [5]
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)) return;
@@ -94,9 +83,8 @@ export function StudioCockpit({
         1: 'overview',
         2: 'lighting',
         3: 'performance',
-        4: 'macros',
-        5: 'profiles',
-        6: 'about',
+        4: 'profiles',
+        5: 'about',
       };
       if (keyMap[e.key]) {
         switchTab(keyMap[e.key]);
@@ -165,70 +153,8 @@ export function StudioCockpit({
     onApplyEffect(selectedEffect);
   };
 
-  // Macro recording listeners
-  useEffect(() => {
-    if (!isRecordingMacro) return;
-
-    const onKeyDown = (e) => {
-      // Don't intercept tab navigation keys
-      if (e.key === 'Tab') return;
-      const now = performance.now();
-      const delay = lastEventTimeRef.current ? Math.round(now - lastEventTimeRef.current) : 0;
-      lastEventTimeRef.current = now;
-
-      setRecordedEvents((prev) => [
-        ...prev,
-        { kind: 'key', action: `KeyDown:${e.code || e.key}`, delay_ms: Math.min(5000, Math.max(10, delay)) },
-      ]);
-    };
-
-    const onKeyUp = (e) => {
-      const now = performance.now();
-      const delay = lastEventTimeRef.current ? Math.round(now - lastEventTimeRef.current) : 10;
-      lastEventTimeRef.current = now;
-
-      setRecordedEvents((prev) => [
-        ...prev,
-        { kind: 'key', action: `KeyUp:${e.code || e.key}`, delay_ms: Math.min(5000, Math.max(10, delay)) },
-      ]);
-    };
-
-    window.addEventListener('keydown', onKeyDown);
-    window.addEventListener('keyup', onKeyUp);
-    return () => {
-      window.removeEventListener('keydown', onKeyDown);
-      window.removeEventListener('keyup', onKeyUp);
-    };
-  }, [isRecordingMacro]);
-
-  const toggleMacroRecording = () => {
-    sound.click();
-    if (isRecordingMacro) {
-      // Stop recording and append events to current macro
-      setIsRecordingMacro(false);
-      if (recordedEvents.length > 0 && macros[selectedMacroIndex]) {
-        const current = macros[selectedMacroIndex];
-        const updated = {
-          ...current,
-          events: [...current.events, ...recordedEvents],
-        };
-        onSaveMacro(updated);
-      }
-      setRecordedEvents([]);
-      recordingStartTimeRef.current = null;
-      lastEventTimeRef.current = null;
-    } else {
-      // Start recording
-      setRecordedEvents([]);
-      recordingStartTimeRef.current = performance.now();
-      lastEventTimeRef.current = performance.now();
-      setIsRecordingMacro(true);
-    }
-  };
-
   const currentEffectObj = EFFECTS.find((e) => e.id === selectedEffect) || EFFECTS[0];
   const selectedDpi = stages[activeStage - 1] ?? activeDpi;
-  const activeMacro = macros[selectedMacroIndex] || macros[0] || { name: 'New Macro', loopCount: 1, events: [] };
 
   return (
     <div className="studio-cockpit active">
@@ -267,9 +193,8 @@ export function StudioCockpit({
             { id: 'overview', key: '1', label: 'OVERVIEW' },
             { id: 'lighting', key: '2', label: 'LIGHTING' },
             { id: 'performance', key: '3', label: 'PERFORMANCE' },
-            { id: 'macros', key: '4', label: 'MACROS' },
-            { id: 'profiles', key: '5', label: 'PROFILES' },
-            { id: 'about', key: '6', label: 'SYSTEM' },
+            { id: 'profiles', key: '4', label: 'PROFILES' },
+            { id: 'about', key: '5', label: 'SYSTEM' },
           ].map((tab) => (
             <button
               key={tab.id}
@@ -418,18 +343,28 @@ export function StudioCockpit({
           </div>
 
           <div className="stage-footer-telemetry">
-            <div className="footer-effect-preview">
+            <button
+              type="button"
+              className="footer-effect-preview"
+              title="Click to apply the next lighting effect"
+              aria-label={`Current lighting: ${currentEffectObj.name}. Click to apply the next effect.`}
+              onClick={() => {
+                sound.click();
+                const currentIndex = EFFECTS.findIndex((effect) => effect.id === selectedEffect);
+                const nextEffect = EFFECTS[(currentIndex + 1) % EFFECTS.length];
+                setHasPendingLighting(false);
+                onSelectEffect(nextEffect.id);
+                onApplyEffect(nextEffect.id);
+              }}
+            >
               <span className="pipe-slot" aria-hidden="true">
                 <i className="mouse-led" style={{ background: activeColor }}></i>
               </span>
               <div className="effect-text">
-                <span className="meta-label">ACTIVE CHROMA EFFECT</span>
+                <span className="meta-label">LIGHTING MODE · CLICK TO CHANGE</span>
                 <span className="meta-val">{currentEffectObj.name}</span>
               </div>
-            </div>
-            <div className="hud-stage-dots">
-              <span></span><span></span><span></span>
-            </div>
+            </button>
           </div>
         </aside>
 
@@ -818,242 +753,21 @@ export function StudioCockpit({
               </section>
             )}
 
-            {/* TAB 4: MACROS */}
-            {activeTab === 'macros' && (
-              <section className="page active" aria-labelledby="heading-macros">
-                <div className="page-heading">
-                  <div>
-                    <p className="eyebrow">LOCAL MACRO ENGINE // INPUT RECORDER</p>
-                    <h1 id="heading-macros">MACRO STUDIO</h1>
-                    <p className="subheading">Create, record, and export timed keystroke and mouse event sequences.</p>
-                  </div>
-                </div>
-
-                <div className="macro-studio-layout">
-                  {/* Macro List Sidebar */}
-                  <div className="macro-sidebar">
-                    <div className="flex items-center justify-between mb-1">
-                      <b className="text-sm font-mono">MACRO LIBRARY</b>
-                      <button
-                        type="button"
-                        className="button button-secondary text-xs py-1 px-2"
-                        onClick={() => {
-                          const newName = `Macro ${macros.length + 1}`;
-                          onSaveMacro({ name: newName, loopCount: 1, events: [] });
-                          setSelectedMacroIndex(macros.length);
-                        }}
-                      >
-                        + NEW
-                      </button>
-                    </div>
-
-                    <div className="flex flex-col gap-2 max-h-[360px] overflow-y-auto">
-                      {macros.map((m, idx) => (
-                        <div
-                          key={idx}
-                          className={`macro-item-chip ${idx === selectedMacroIndex ? 'active' : ''}`}
-                          onClick={() => {
-                            sound.click();
-                            setSelectedMacroIndex(idx);
-                          }}
-                        >
-                          <div>
-                            <div className="font-bold text-xs">{m.name}</div>
-                            <div className="text-[10px] text-muted">{m.events?.length || 0} events · loop x{m.loopCount || 1}</div>
-                          </div>
-                          {macros.length > 1 && (
-                            <button
-                              type="button"
-                              className="text-xs text-muted hover:text-red-400 p-1"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                onDeleteMacro(m.name);
-                                setSelectedMacroIndex(0);
-                              }}
-                              title="Delete Macro"
-                            >
-                              ✕
-                            </button>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Macro Editor Deck */}
-                  <div className="macro-editor-stage">
-                    <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
-                      <div className="flex items-center gap-3">
-                        <label className="text-xs font-mono text-muted" htmlFor="macro-name-input">NAME:</label>
-                        <input
-                          id="macro-name-input"
-                          type="text"
-                          value={activeMacro.name}
-                          onChange={(e) => {
-                            onSaveMacro({ ...activeMacro, name: e.target.value });
-                          }}
-                          className="tactical-hex-input w-48 text-left"
-                        />
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <label className="text-xs font-mono text-muted" htmlFor="macro-loop-input">LOOPS (1-100):</label>
-                        <input
-                          id="macro-loop-input"
-                          type="number"
-                          min="1"
-                          max="100"
-                          value={activeMacro.loopCount || 1}
-                          onChange={(e) => {
-                            const val = Math.min(100, Math.max(1, Number(e.target.value)));
-                            onSaveMacro({ ...activeMacro, loopCount: val });
-                          }}
-                          className="dpi-num-input"
-                        />
-                      </div>
-                    </div>
-
-                    {/* Live Recorder Deck */}
-                    <div className="macro-recorder-deck">
-                      <div className="flex items-center gap-3">
-                        <button
-                          type="button"
-                          className={`record-pulse-btn ${isRecordingMacro ? 'recording' : ''}`}
-                          onClick={toggleMacroRecording}
-                        >
-                          <span>●</span>
-                          <span>{isRecordingMacro ? 'STOP RECORDING' : 'RECORD INPUTS'}</span>
-                        </button>
-                        <span className="text-xs text-muted">
-                          {isRecordingMacro
-                            ? `Recording keystrokes... (${recordedEvents.length} events captured)`
-                            : 'Click Record, then press keys to capture timing'}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <button
-                          type="button"
-                          className="button button-secondary text-xs"
-                          onClick={() => {
-                            sound.click();
-                            const blob = new Blob([JSON.stringify(activeMacro, null, 2)], { type: 'application/json' });
-                            const url = URL.createObjectURL(blob);
-                            const a = document.createElement('a');
-                            a.href = url;
-                            a.download = `macro-${activeMacro.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}.json`;
-                            a.click();
-                            URL.revokeObjectURL(url);
-                          }}
-                        >
-                          EXPORT JSON
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Event Timeline List */}
-                    <div className="macro-timeline-list">
-                      {activeMacro.events?.length === 0 ? (
-                        <div className="p-8 text-center text-xs text-muted">
-                          No events in this macro. Click "RECORD INPUTS" or add an action below.
-                        </div>
-                      ) : (
-                        activeMacro.events.map((ev, i) => (
-                          <div key={i} className="macro-event-row">
-                            <span className="text-xs font-mono text-muted">#{i + 1}</span>
-                            <span className="text-xs font-mono font-bold text-white">{ev.action}</span>
-                            <div className="flex items-center gap-1">
-                              <input
-                                type="number"
-                                min="0"
-                                max="60000"
-                                value={ev.delay_ms}
-                                onChange={(e) => {
-                                  const updatedEvents = [...activeMacro.events];
-                                  updatedEvents[i] = { ...ev, delay_ms: Number(e.target.value) };
-                                  onSaveMacro({ ...activeMacro, events: updatedEvents });
-                                }}
-                                className="dpi-num-input w-20"
-                                aria-label="Delay milliseconds"
-                              />
-                              <span className="text-[10px] text-muted">ms</span>
-                            </div>
-                            <button
-                              type="button"
-                              className="text-muted hover:text-red-400 text-xs"
-                              onClick={() => {
-                                sound.click();
-                                const updatedEvents = activeMacro.events.filter((_, idx) => idx !== i);
-                                onSaveMacro({ ...activeMacro, events: updatedEvents });
-                              }}
-                              title="Delete Event"
-                            >
-                              ✕
-                            </button>
-                          </div>
-                        ))
-                      )}
-                    </div>
-
-                    {/* Add Event Row */}
-                    <div className="flex items-center gap-2 pt-2 border-t border-panel-border">
-                      <button
-                        type="button"
-                        className="button button-secondary text-xs"
-                        onClick={() => {
-                          sound.click();
-                          const updated = [...(activeMacro.events || []), { kind: 'mouse', action: 'left_click', delay_ms: 25 }];
-                          onSaveMacro({ ...activeMacro, events: updated });
-                        }}
-                      >
-                        + Left Click
-                      </button>
-                      <button
-                        type="button"
-                        className="button button-secondary text-xs"
-                        onClick={() => {
-                          sound.click();
-                          const updated = [...(activeMacro.events || []), { kind: 'mouse', action: 'right_click', delay_ms: 25 }];
-                          onSaveMacro({ ...activeMacro, events: updated });
-                        }}
-                      >
-                        + Right Click
-                      </button>
-                      <button
-                        type="button"
-                        className="button button-secondary text-xs"
-                        onClick={() => {
-                          sound.click();
-                          const updated = [...(activeMacro.events || []), { kind: 'key', action: 'Delay', delay_ms: 50 }];
-                          onSaveMacro({ ...activeMacro, events: updated });
-                        }}
-                      >
-                        + 50ms Delay
-                      </button>
-                    </div>
-
-                    <p className="hardware-note mt-4">
-                      <span aria-hidden="true">ⓘ</span>
-                      Macros are saved in your profile. This browser app cannot play them in other applications.
-                    </p>
-                  </div>
-                </div>
-              </section>
-            )}
-
-            {/* TAB 5: PROFILES */}
+            {/* TAB 4: PROFILES */}
             {activeTab === 'profiles' && (
               <section className="page active" aria-labelledby="heading-profiles">
                 <div className="page-heading">
                   <div>
-                    <p className="eyebrow">CONFIGURATION ARCHIVE &amp; SYSTEM RECOVERY</p>
-                    <h1 id="heading-profiles">PROFILES &amp; RECOVERY</h1>
-                    <p className="subheading">Manage local profile presets, file export/import, and safe hardware baseline restore.</p>
+                    <p className="eyebrow">SAVED SETTINGS</p>
+                    <h1 id="heading-profiles">PROFILES</h1>
+                    <p className="subheading">Save, import, or export your mouse settings.</p>
                   </div>
                 </div>
 
                 {/* Profile Controls Bar */}
                 <div className="panel mb-6">
                   <div className="flex items-center justify-between flex-wrap gap-4">
-                    <div className="flex items-center gap-3">
+                    <div className="flex flex-wrap items-center gap-3">
                       <input
                         type="text"
                         placeholder="New Profile Name..."
@@ -1157,7 +871,7 @@ export function StudioCockpit({
                   </div>
                   <div className="settings-storage-copy">
                     <p><strong>Mouse:</strong> sensitivity stages, polling rate, and lighting mode.</p>
-                    <p><strong>This browser:</strong> saved profiles and macros.</p>
+                    <p><strong>This browser:</strong> saved profiles.</p>
                   </div>
                 </div>
 
@@ -1181,7 +895,7 @@ export function StudioCockpit({
               </section>
             )}
 
-            {/* TAB 6: ABOUT */}
+            {/* TAB 5: ABOUT */}
             {activeTab === 'about' && (
               <section className="page active" aria-labelledby="heading-about">
                 <div className="page-heading">
@@ -1195,7 +909,7 @@ export function StudioCockpit({
                 <div className="about-spec-plate">
                   <div className="spec-plate-inner">
                     <div className="spec-plate-header">
-                      <div className="plate-title">ACER PHANTOM X12 // TACTICAL WEBHID SUITE</div>
+                      <div className="plate-title">ACER PHANTOM X12 MOUSE CONTROLS</div>
                       <div className="plate-serial">2.4 GHz wireless receiver</div>
                     </div>
 

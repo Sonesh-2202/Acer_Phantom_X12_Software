@@ -21,7 +21,6 @@ import {
   parseProfileReport,
   parseInputReport,
   validateProfile,
-  validateMacro,
 } from './utils/webhid';
 import { LandingPage } from './components/LandingPage';
 import { StudioCockpit } from './components/StudioCockpit';
@@ -74,20 +73,9 @@ export function App() {
   const [activeColor, setActiveColor] = useState('#A3FF12');
   const [isApplyingLighting, setIsApplyingLighting] = useState(false);
 
-  // Profiles and macros state
+  // Profiles state
   const [profiles, setProfiles] = useState(INITIAL_PROFILES);
   const [activeProfileId, setActiveProfileId] = useState('default');
-  const [macros, setMacros] = useState([
-    {
-      name: 'Triple Burst Tap',
-      loopCount: 1,
-      events: [
-        { kind: 'mouse', action: 'left_click', delay_ms: 10 },
-        { kind: 'mouse', action: 'left_click', delay_ms: 35 },
-        { kind: 'mouse', action: 'left_click', delay_ms: 35 },
-      ],
-    },
-  ]);
 
   // UI state
   const [toastMessage, setToastMessage] = useState(null);
@@ -147,9 +135,6 @@ export function App() {
 
       const storedProfiles = localStorage.getItem('phantom-profiles');
       if (storedProfiles) setProfiles(JSON.parse(storedProfiles));
-
-      const storedMacros = localStorage.getItem('phantom-macros');
-      if (storedMacros) setMacros(JSON.parse(storedMacros));
 
       const storedTheme = localStorage.getItem('phantom-theme');
       if (storedTheme) {
@@ -957,32 +942,6 @@ export function App() {
     reader.readAsText(file);
   };
 
-  // Macro management helpers
-  const handleSaveMacro = (macro) => {
-    try {
-      validateMacro(macro);
-      const updated = [...macros.filter((m) => m.name !== macro.name), macro];
-      setMacros(updated);
-      try {
-        localStorage.setItem('phantom-macros', JSON.stringify(updated));
-      } catch {}
-      sound.ack();
-      showToast(`Macro "${macro.name}" saved.`);
-    } catch (err) {
-      showToast(`Macro error: ${err.message}`);
-    }
-  };
-
-  const handleDeleteMacro = (macroName) => {
-    sound.click();
-    const updated = macros.filter((m) => m.name !== macroName);
-    setMacros(updated);
-    try {
-      localStorage.setItem('phantom-macros', JSON.stringify(updated));
-    } catch {}
-    showToast(`Macro "${macroName}" removed.`);
-  };
-
   // View Transitions
   const transitionToStudio = () => {
     sound.boot();
@@ -1004,7 +963,7 @@ export function App() {
   // Check URL hash on initial load
   useEffect(() => {
     const hash = window.location.hash.replace('#', '');
-    if (['overview', 'lighting', 'performance', 'macros', 'profiles', 'about'].includes(hash)) {
+    if (['overview', 'lighting', 'performance', 'profiles', 'about'].includes(hash)) {
       setCurrentView('studio');
     }
   }, []);
@@ -1092,10 +1051,6 @@ export function App() {
           activeColor={activeColor}
           onApplyEffect={applyEffectToHardware}
           isApplyingLighting={isApplyingLighting}
-          // Macros
-          macros={macros}
-          onSaveMacro={handleSaveMacro}
-          onDeleteMacro={handleDeleteMacro}
           // Profiles & System Restore
           profiles={profiles}
           activeProfileId={activeProfileId}

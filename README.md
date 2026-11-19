@@ -52,8 +52,7 @@ npm run build
 | **Hardware DPI Button** | Unsolicited `AA FA AE [0x10]` | **Verified & Live** | Physical button events switch active stage instantly with audio and HUD visual flash |
 | **Lighting Effects** | `55 21 [MODE]` | **Verified & Live** | 7 onboard modes: Void (0), Aurora (1), Neon Bloom (2), Comet Rally (3), Orbit Bounce (4), Photon Sweep (5), Lumen Breath (6) |
 | **Custom Color Sculptor**| Local Shader | **Preview Only** | 60 FPS live shader preview and local scenes. Receiver firmware does not expose arbitrary ARGB color packets |
-| **Button Remapping** | `55 09` | **Decoded / Local Profile** | Default switch table decoded from capture; custom remappings saved locally to avoid EEPROM bricking |
-| **Macro Studio** | Local Studio | **Local Profile** | Full interactive macro recorder, event editor, loop controls, JSON export/import |
+| **Button Remapping** | Not available | **Unsupported** | The Studio does not offer button reassignment |
 | **System Restore** | `55 0F` / `55 21` | **Verified & Live** | Safe baseline reset (1000Hz, Stage 1, standard curve, Aurora) without risky OEM factory-reset commands |
 
 For technical byte offsets, captures, and reverse-engineering details, see [docs/protocol.md](docs/protocol.md).
@@ -63,9 +62,9 @@ For technical byte offsets, captures, and reverse-engineering details, see [docs
 ## Project structure
 
 - `src/App.jsx` — Core state machine, WebHID connection lifecycle, telemetry handlers, profile management.
-- `src/components/StudioCockpit.jsx` — Tactical cockpit interface: Overview, Lighting, Performance, Buttons, Macros, Profiles, System.
-- `src/components/MouseHardwareVisual.jsx` — Interactive 3D/SVG CAD mouse visualizer with dynamic reactive lighting.
-- `src/components/LandingPage.jsx` — Flagship landing page with GSAP scrollytelling and telemetry callouts.
+- `src/components/StudioCockpit.jsx` — Studio interface for Overview, Lighting, Performance, Profiles, and System settings.
+- `src/components/MouseHardwareVisual.jsx` — Mouse image with live DPI, polling rate, and battery labels.
+- `src/components/LandingPage.jsx` — Product page with a hardware overview and connection controls.
 - `src/utils/webhid.js` — WebHID receiver filters, report parsers, packet builders, bounds validation, and transmission helpers.
 - `src/styles/hud.css` — High-tech dark tactical design system with ambient glow and responsive layouts.
 - `tests/webhid.test.js` — Automated unit tests for all WebHID packet construction, bounds checking, and report decoding.
@@ -88,7 +87,7 @@ For technical byte offsets, captures, and reverse-engineering details, see [docs
 ## Privacy and data handling
 
 - **No external telemetry**: The application sends zero device data or analytics to any external server.
-- **Local storage**: Custom profiles, lighting scenes, button assignments, and macros are stored strictly in your browser's local storage (`localStorage`).
+- **Local storage**: Saved profiles and theme preferences are kept in your browser's local storage (`localStorage`).
 - **External assets**: Fonts are loaded from Google Fonts CDN (`fonts.googleapis.com`). All code and images are hosted directly from GitHub Pages or locally.
 - **Hardware safety**: Settings packets preserve unknown tail bytes from baseline reads. Arbitrary or unverified commands (such as vendor factory-reset writes) are strictly excluded.
 

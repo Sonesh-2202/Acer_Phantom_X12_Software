@@ -89,7 +89,7 @@ export function LandingPage({
             </svg>
             <div className="brand-text">
               <span className="brand-title">ACER PHANTOM X12</span>
-              <span className="brand-subtitle">DRIVER SUITE // WEBHID</span>
+              <span className="brand-subtitle">MOUSE CONTROL</span>
             </div>
           </a>
 
@@ -123,7 +123,7 @@ export function LandingPage({
         {/* Watermark Drifting Track */}
         <div className="watermark-container" aria-hidden="true">
           <div ref={watermarkRef} className="watermark-track">
-            <span>PHANTOM X12 // ULTRA-LIGHTWEIGHT WIRELESS // 1000HZ WEBHID // 12,000 DPI // ZERO BLOATWARE // </span>
+            <span>PHANTOM X12 · WIRELESS · 1000 HZ · 12,000 DPI · </span>
           </div>
         </div>
 
@@ -145,8 +145,7 @@ export function LandingPage({
           </h1>
 
           <p className="hero-desc">
-            Meet the standalone, instant WebHID driver suite for the <strong>Acer Nitro Phantom X12</strong>. 
-            Engineered for esports telemetry, hardware flash calibration, and direct 2.4GHz wireless control without 500MB background services.
+            Control the <strong>Acer Nitro Phantom X12</strong> from your browser. Adjust sensitivity, polling rate, lighting, and battery settings in one place.
           </p>
 
           {/* Primary Dual-Action CTA Deck */}
@@ -163,7 +162,7 @@ export function LandingPage({
               <span className="btn-chamfer-edge"></span>
               <div className="btn-text-group">
                 <span className="btn-label-primary">[ MOUSE CONTROL VIA WEB ]</span>
-                <span className="btn-subtext">WEBHID READY // NO INSTALL REQUIRED</span>
+                <span className="btn-subtext">OPEN MOUSE CONTROLS</span>
               </div>
               <svg className="btn-arrow" viewBox="0 0 18 18" fill="none">
                 <path d="M4 9H14M14 9L9.5 4.5M14 9L9.5 13.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -250,7 +249,7 @@ export function LandingPage({
 
             <div className="scrolly-cards-stack">
               <div className="scrolly-card" id="scrolly-card-1">
-                <div className="card-num">01 // TELEMETRY</div>
+                <div className="card-num">01 · CONNECTION</div>
                 <h3 className="card-title">2.4 GHz Receiver Link</h3>
                 <p className="card-desc">
                   Connect to the YJX 2.4 GHz receiver to view and adjust the mouse profile. The receiver currently reports a 1000 Hz polling rate.
@@ -262,7 +261,7 @@ export function LandingPage({
               </div>
 
               <div className="scrolly-card" id="scrolly-card-2">
-                <div className="card-num">02 // SENSOR ARRAY</div>
+                <div className="card-num">02 · SENSITIVITY</div>
                 <h3 className="card-title">Six-Stage DPI Profile</h3>
                 <p className="card-desc">
                   The receiver reports six stages from 1,200 to 12,000 DPI. This app reads the active profile; writing customized DPI values is not enabled yet.
@@ -274,7 +273,7 @@ export function LandingPage({
               </div>
 
               <div className="scrolly-card" id="scrolly-card-3">
-                <div className="card-num">03 // LIGHTING CHROMA</div>
+                <div className="card-num">03 · LIGHTING</div>
                 <h3 className="card-title">Seven Onboard Lighting Modes</h3>
                 <p className="card-desc">
                   The seven onboard modes were observed on this mouse. Custom color packets and independent ARGB zones have not been identified.
@@ -286,7 +285,7 @@ export function LandingPage({
               </div>
 
               <div className="scrolly-card" id="scrolly-card-4">
-                <div className="card-num">04 // PHILOSOPHY</div>
+                <div className="card-num">04 · ABOUT</div>
                 <h3 className="card-title">Zero-Bloatware Architecture</h3>
                 <p className="card-desc">
                   The control panel runs in a browser and uses WebHID for the confirmed 2.4 GHz receiver. No native driver or background service is part of this project.
@@ -311,7 +310,7 @@ export function LandingPage({
                 <span className="blinking-dot"></span>
                 COMMUNITY REVERSE-ENGINEERING INITIATIVE
               </div>
-              <span className="manifesto-meta">DOC ID: RECEIVER-PROTOCOL // RESEARCH</span>
+              <span className="manifesto-meta">RECEIVER RESEARCH</span>
             </div>
 
             <h2 className="manifesto-title">
@@ -405,7 +404,7 @@ export function LandingPage({
             <a href="https://github.com/sonesh-2202/Acer_Phantom_X12_Software" target="_blank" rel="noopener noreferrer" className="footer-link-btn">GitHub Repository</a>
           </div>
           <div className="footer-right">
-            <span className="version-tag">LAUNCH READY // A8A5:2255</span>
+            <span className="version-tag">DEVICE READY</span>
           </div>
         </div>
       </footer>

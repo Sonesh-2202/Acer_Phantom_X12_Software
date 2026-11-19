@@ -35,7 +35,7 @@ export function PatronageModal({ isOpen, onClose }) {
             Phantom Device Studio is an independent, non-commercial hardware research initiative.
           </p>
           <p className="dialog-desc text-xs text-text-secondary leading-relaxed mb-6">
-            Your patronage directly funds purchasing USB hardware analyzers (like Total Phase Beagle), additional wireless dongles, and prototype units to decode button and macro registers.
+            Your support helps fund USB hardware analyzers, wireless receivers, and prototype devices for compatibility testing.
           </p>
 
           <div className="grid grid-cols-2 gap-3 mb-6">

@@ -132,28 +132,26 @@ export function validateProfile(profile) {
   return true;
 }
 
-/**
- * Validates a macro structure.
- */
+/** Validates a macro data structure for the standalone utility tests. */
 export function validateMacro(macro) {
   if (!macro || typeof macro !== 'object') throw new Error('Macro must be an object.');
   if (!macro.name || !macro.name.trim()) throw new Error('Macro name cannot be empty.');
   const loop = Number(macro.loopCount ?? 1);
   if (!Number.isInteger(loop) || loop < 1 || loop > 100) {
-    throw new Error('Macro loop count must be an integer between 1 and 100.');
+    throw new Error('Loop count must be an integer between 1 and 100.');
   }
-  if (!Array.isArray(macro.events)) throw new Error('Macro events must be an array.');
+  if (!Array.isArray(macro.events)) throw new Error('Events must be an array.');
   for (let i = 0; i < macro.events.length; i++) {
     const ev = macro.events[i];
     if (!['key', 'mouse'].includes(ev.kind)) {
-      throw new Error(`Event #${i + 1} has invalid kind "${ev.kind}". Expected "key" or "mouse".`);
+      throw new Error(`Event #${i + 1} has an invalid kind.`);
     }
     if (!ev.action || typeof ev.action !== 'string') {
       throw new Error(`Event #${i + 1} action cannot be empty.`);
     }
     const delay = Number(ev.delay_ms ?? 0);
     if (!Number.isFinite(delay) || delay < 0 || delay > 60000) {
-      throw new Error(`Event #${i + 1} delay (${delay} ms) must be between 0 and 60,000 ms.`);
+      throw new Error(`Event #${i + 1} delay must be between 0 and 60,000 ms.`);
     }
   }
   return true;
